@@ -1,0 +1,10 @@
+sge - Simple Game Engine
+========================
+
+sge is a simple 3D game engine for Go. It uses Go-OpenGL and Atom's
+Go-SDL fork. Currently, the main version of Go-OpenGL does not support
+all the functions we need, so you will need to use the one at
+https://github.com/Agon/Go-OpenGL.
+
+For an example of how to use this library, check the example directory.
+It should be fairly straightforward.
