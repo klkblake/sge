@@ -15,7 +15,7 @@ type View struct {
 	ViewMatrix *Mat4
 }
 
-func NewView(width int, height int, near float64, far float64) *View {
+func NewView(title string, width int, height int, near float64, far float64) *View {
 	view := new(View)
 	runtime.LockOSThread()
 	if sdl.Init(sdl.INIT_VIDEO) < 0 {
@@ -27,6 +27,7 @@ func NewView(width int, height int, near float64, far float64) *View {
 	if view.Screen == nil {
 		panic(sdl.GetError())
 	}
+	sdl.WM_SetCaption(title, title)
 	gl.Init()
 	//gl.Enable(gl.BLEND)
 	//gl.Enable(gl.CULL_FACE)

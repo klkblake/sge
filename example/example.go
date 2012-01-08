@@ -9,7 +9,7 @@ import "atom/sdl"
 func main() {
 	assets := sge.NewAssets()
 	world := sge.NewWorld()
-	view := sge.NewView(800, 600, 0.1, 10000)
+	view := sge.NewView("Example", 800, 600, 0.1, 10000)
 	defer view.Close()
 	// Test our shaders
 	shader := assets.ShaderProgram("default", "defaultCube")
