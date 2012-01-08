@@ -73,7 +73,9 @@ func NewSkybox(cubeMap *Texture, shader *Program, far float64) *Skybox {
 }
 
 func (skybox *Skybox) Render(view *View, mvpMatrix *Mat4, pass int) {
-	skybox.CubeMap.Bind()
+	if skybox.CubeMap != nil {
+		skybox.CubeMap.Bind()
+	}
 	skybox.Shader.Use()
 	pos := view.Camera.Position()
 	skybox.translateMatrix[12] = pos.X
@@ -81,6 +83,8 @@ func (skybox *Skybox) Render(view *View, mvpMatrix *Mat4, pass int) {
 	skybox.translateMatrix[14] = pos.Z
 	matrix := mvpMatrix.Mul(skybox.translateMatrix).Mul(skybox.scaleMatrix).GetFloat32Matrix()
 	skybox.mvpMatrixUniform.UniformMatrix4fv(false, 1, matrix[:])
-	skybox.textureUnitUniform.Uniform1i(0)
+	if skybox.CubeMap != nil {
+		skybox.textureUnitUniform.Uniform1i(0)
+	}
 	skybox.mesh.Render()
 }
