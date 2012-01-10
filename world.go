@@ -28,7 +28,14 @@ func NewWorld() *World {
 }
 
 func (world *World) Update(deltaNs int64) {
-	world.Root.UpdateAll(deltaNs)
+	update(world.Root, deltaNs)
+}
+
+func update(node Node, deltaNs int64) {
+	node.Update(deltaNs)
+	for _, child := range node.Children() {
+		update(child, deltaNs)
+	}
 }
 
 func (world *World) Render(view *View) {
@@ -36,15 +43,27 @@ func (world *World) Render(view *View) {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 	world.matrixStack.Push(view.PerspectiveMatrix)
 	world.matrixStack.Push(view.ViewMatrix)
-	world.Root.RenderAll(view, world.matrixStack, PassOpaque)
+	render(world.Root, view, world.matrixStack, PassOpaque)
 	if world.Skybox != nil {
 		world.Skybox.Render(view, world.matrixStack.Top(), PassOpaque)
 	}
-	world.Root.RenderAll(view, world.matrixStack, PassTranslucent)
+	render(world.Root, view, world.matrixStack, PassTranslucent)
 	world.matrixStack.Pop()
 	world.matrixStack.Pop()
 	// XXX Setup orthographic projection.
-	world.Gui.RenderAll(view, world.matrixStack, PassOpaque)
-	world.Gui.RenderAll(view, world.matrixStack, PassTranslucent)
+	render(world.Gui, view, world.matrixStack, PassOpaque)
+	render(world.Gui, view, world.matrixStack, PassTranslucent)
 	sdl.GL_SwapBuffers()
+}
+
+func render(node Node, view *View, matrixStack *Mat4Stack, pass int) {
+	modelMatrix := Mat4(node.Xform().GetMatrix4())
+	matrixStack.Push(&modelMatrix)
+	if pass & node.Passes() != 0 {
+		node.Render(view, matrixStack.Top(), pass)
+	}
+	for _, child := range node.Children() {
+		render(child, view, matrixStack, pass)
+	}
+	matrixStack.Pop()
 }

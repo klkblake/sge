@@ -8,8 +8,6 @@ type Node interface {
 	Passes() int
 	Add(child Node)
 	Remove(child Node)
-	UpdateAll(deltaNs int64)
-	RenderAll(view *View, matrixStack *Mat4Stack, pass int)
 	Update(deltaNs int64)
 	Render(view *View, mvpMatrix *Mat4, pass int)
 }
@@ -53,25 +51,6 @@ func (node *BasicNode) Remove(child Node) {
 			node.children = append(node.children[:i], node.children[i+1:]...)
 		}
 	}
-}
-
-func (node *BasicNode) UpdateAll(deltaNs int64) {
-	node.Update(deltaNs)
-	for _, child := range node.children {
-		child.UpdateAll(deltaNs)
-	}
-}
-
-func (node *BasicNode) RenderAll(view *View, matrixStack *Mat4Stack, pass int) {
-	modelMatrix := Mat4(node.Xform().GetMatrix4())
-	matrixStack.Push(&modelMatrix)
-	if pass & node.Passes() != 0 {
-		node.Render(view, matrixStack.Top(), pass)
-	}
-	for _, child := range node.children {
-		child.RenderAll(view, matrixStack, pass)
-	}
-	matrixStack.Pop()
 }
 
 func (node *BasicNode) Update(deltaNs int64) {}
