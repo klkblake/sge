@@ -9,16 +9,16 @@ const (
 )
 
 type World struct {
-	Root *Node
+	Root Node
 	Skybox Renderer
-	Gui *Node
+	Gui Node
 	matrixStack *Mat4Stack
 }
 
 func NewWorld() *World {
 	world := new(World)
-	world.Root = NewNode()
-	world.Gui = NewNode()
+	world.Root = NewBasicNode()
+	world.Gui = NewBasicNode()
 	world.matrixStack = NewMat4Stack()
 	return world
 }
