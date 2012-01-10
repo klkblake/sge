@@ -44,6 +44,13 @@ func setupVBO(location int, data []float32, dimensions uint) gl.Buffer {
 	return buf
 }
 
+func (mesh *Mesh) Delete() {
+	mesh.vao.Delete()
+	mesh.vertexBO.Delete()
+	mesh.texcoordBO.Delete()
+	mesh.indexBO.Delete()
+}
+
 func (mesh *Mesh) Render() {
 	mesh.vao.Bind()
 	gl.DrawElements(gl.TRIANGLES, len(mesh.Indicies), gl.UNSIGNED_INT, 0)
