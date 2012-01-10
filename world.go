@@ -4,7 +4,7 @@ import "gl"
 import "atom/sdl"
 
 const (
-	PassOpaque = iota
+	PassOpaque = 1 << iota
 	PassTranslucent
 )
 

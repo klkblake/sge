@@ -5,7 +5,7 @@ import "s3dm"
 type Node struct {
 	s3dm.Xform
 	Children []*Node
-	Translucent bool
+	Passes int
 }
 
 func NewNode() *Node {
@@ -37,7 +37,7 @@ func (node *Node) UpdateAll(deltaNs int64) {
 func (node *Node) RenderAll(view *View, matrixStack *Mat4Stack, pass int) {
 	modelMatrix := Mat4(node.Xform.GetMatrix4())
 	matrixStack.Push(&modelMatrix)
-	if pass == PassOpaque && node.Translucent == false || pass == PassTranslucent && node.Translucent == true {
+	if pass & node.Passes != 0 {
 		node.Render(view, matrixStack.Top(), pass)
 	}
 	for _, child := range node.Children {
