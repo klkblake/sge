@@ -6,23 +6,25 @@ type Mesh struct {
 	Verticies []float32
 	Texcoords []float32
 	Indicies []uint32
-	numTexDimensions uint
+	vertexDimensions uint
+	texDimensions uint
 	vao gl.VertexArray
 	vertexBO gl.Buffer
 	texcoordBO gl.Buffer
 	indexBO gl.Buffer
 }
 
-func NewMesh(verticies []float32, texcoords []float32, indicies []uint32) *Mesh {
+func NewMesh(verticies []float32, texcoords []float32, indicies []uint32, vertexDimensions uint) *Mesh {
 	mesh := new(Mesh)
 	mesh.Verticies = verticies
 	mesh.Texcoords = texcoords
 	mesh.Indicies = indicies
-	mesh.numTexDimensions = uint(len(texcoords) / (len(verticies) / 3))
+	mesh.vertexDimensions = vertexDimensions
+	mesh.texDimensions = uint(len(texcoords) / (len(verticies) / int(vertexDimensions)))
 	mesh.vao = gl.GenVertexArray()
 	mesh.vao.Bind()
-	mesh.vertexBO = setupVBO(0, verticies, 3)
-	mesh.texcoordBO = setupVBO(1, texcoords, mesh.numTexDimensions)
+	mesh.vertexBO = setupVBO(0, verticies, mesh.vertexDimensions)
+	mesh.texcoordBO = setupVBO(1, texcoords, mesh.texDimensions)
 	mesh.indexBO = createBuffer(gl.ELEMENT_ARRAY_BUFFER, indicies, len(indicies)*4)
 	return mesh
 }
