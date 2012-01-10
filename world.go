@@ -17,8 +17,12 @@ type World struct {
 
 func NewWorld() *World {
 	world := new(World)
-	world.Root = NewBasicNode()
-	world.Gui = NewBasicNode()
+	root := NewBasicNode()
+	root.SetPasses(-1)
+	world.Root = root
+	gui := NewBasicNode()
+	gui.SetPasses(-1)
+	world.Gui = gui
 	world.matrixStack = NewMat4Stack()
 	return world
 }
