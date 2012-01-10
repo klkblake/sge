@@ -22,13 +22,9 @@ type BasicNode struct {
 
 func NewBasicNode() *BasicNode {
 	node := new(BasicNode)
-	node.Init()
-	return node
-}
-
-func (node *BasicNode) Init() {
 	node.xform = s3dm.NewXform()
 	node.children = make([]Node, 0)
+	return node
 }
 
 func (node *BasicNode) Xform() *s3dm.Xform {
