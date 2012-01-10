@@ -30,7 +30,7 @@ func NewView(title string, width int, height int, near float64, far float64) *Vi
 	sdl.WM_SetCaption(title, title)
 	gl.Init()
 	//gl.Enable(gl.BLEND)
-	//gl.Enable(gl.CULL_FACE)
+	gl.Enable(gl.CULL_FACE)
 	gl.Enable(gl.DEPTH_TEST)
 	gl.ClearColor(1.0, 1.0, 1.0, 1.0)
 	//gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
