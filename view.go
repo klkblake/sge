@@ -38,6 +38,7 @@ func NewView(title string, width int, height int, near float64, far float64) *Vi
 	fovy := math.Pi/4
 	aspect := float64(width)/float64(height)
 	view.Camera = s3dm.NewFrustum(near, far, fovy, aspect)
+	view.Update()
 	view.PerspectiveMatrix = calcPerspectiveMatrix(fovy, aspect, near, far)
 	return view
 }
