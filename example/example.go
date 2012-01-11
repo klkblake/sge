@@ -77,6 +77,7 @@ mainloop:
 				view.Camera.SetIdentity()
 				view.Camera.RotateGlobal(yaw, s3dm.NewV3(0, 1, 0))
 				view.Camera.RotateGlobal(pitch, s3dm.NewV3(1, 0, 0))
+				view.Update()
 			}
 			world.Update(t)
 			world.Render(view)

@@ -56,7 +56,7 @@ func (view *View) SetBackgroundColor(red, green, blue float32) {
 	gl.ClearColor(gl.GLclampf(red), gl.GLclampf(green), gl.GLclampf(blue), 1.0)
 }
 
-func (view *View) UpdateViewMatrix() {
+func (view *View) Update() {
 	view.Camera.Update()
 	m := view.Camera.GetMatrix4()
 	// Take the inverse of the camera matrix

@@ -39,8 +39,6 @@ func update(node Node, deltaNs int64) {
 }
 
 func (world *World) Render(view *View) {
-	// XXX This should really only be called if the camera has moved
-	view.UpdateViewMatrix()
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 	world.matrixStack.Push(view.PerspectiveMatrix)
 	world.matrixStack.Push(view.ViewMatrix)
