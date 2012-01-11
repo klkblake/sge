@@ -17,10 +17,10 @@ type World struct {
 
 func NewWorld() *World {
 	world := new(World)
-	root := NewBasicNode()
+	root := NewBasicNode(nil)
 	root.SetPasses(-1)
 	world.Root = root
-	gui := NewBasicNode()
+	gui := NewBasicNode(nil)
 	gui.SetPasses(-1)
 	world.Gui = gui
 	world.matrixStack = NewMat4Stack()
@@ -39,6 +39,7 @@ func update(node Node, deltaNs int64) {
 }
 
 func (world *World) Render(view *View) {
+	// XXX This should really only be called if the camera has moved
 	view.UpdateViewMatrix()
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 	world.matrixStack.Push(view.PerspectiveMatrix)
@@ -59,11 +60,14 @@ func (world *World) Render(view *View) {
 func render(node Node, view *View, matrixStack *Mat4Stack, pass int) {
 	modelMatrix := Mat4(node.Xform().GetMatrix4())
 	matrixStack.Push(&modelMatrix)
+	defer matrixStack.Pop()
+	if view.Camera.IntersectsAABB(node.AABB()) < 0 {
+		return
+	}
 	if pass & node.Passes() != 0 {
 		node.Render(view, matrixStack.Top(), pass)
 	}
 	for _, child := range node.Children() {
 		render(child, view, matrixStack, pass)
 	}
-	matrixStack.Pop()
 }

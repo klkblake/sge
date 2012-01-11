@@ -10,7 +10,7 @@ import "gl"
 
 type View struct {
 	Screen *sdl.Surface
-	Camera *s3dm.Xform
+	Camera *s3dm.Frustum
 	PerspectiveMatrix *Mat4
 	ViewMatrix *Mat4
 }
@@ -35,8 +35,10 @@ func NewView(title string, width int, height int, near float64, far float64) *Vi
 	gl.ClearColor(1.0, 1.0, 1.0, 1.0)
 	//gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 	gl.Viewport(0, 0, width, height)
-	view.Camera = s3dm.NewXform()
-	view.PerspectiveMatrix = calcPerspectiveMatrix(math.Pi/4, float64(width)/float64(height), near, far)
+	fovy := math.Pi/4
+	aspect := float64(width)/float64(height)
+	view.Camera = s3dm.NewFrustum(near, far, fovy, aspect)
+	view.PerspectiveMatrix = calcPerspectiveMatrix(fovy, aspect, near, far)
 	return view
 }
 
@@ -55,6 +57,7 @@ func (view *View) SetBackgroundColor(red, green, blue float32) {
 }
 
 func (view *View) UpdateViewMatrix() {
+	view.Camera.Update()
 	m := view.Camera.GetMatrix4()
 	// Take the inverse of the camera matrix
 	view.ViewMatrix = &Mat4{
