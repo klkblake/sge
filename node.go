@@ -91,6 +91,8 @@ func (node *BasicNode) UpdateAABB() {
 			max.Y = math.Fmax(max.Y, child.Max.Y)
 			max.Z = math.Fmax(max.Z, child.Max.Z)
 		}
+		node.aabb.Min = min
+		node.aabb.Max = max
 	}
 	if node.parent != nil {
 		node.parent.UpdateAABB()
