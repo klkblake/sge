@@ -31,9 +31,6 @@ func NewBasicNode(parent Node) *BasicNode {
 	node.xform = s3dm.NewXform()
 	node.aabb = s3dm.NewAABB(s3dm.NewV3(0, 0, 0), s3dm.NewV3(0, 0, 0))
 	node.parent = parent
-	if parent != nil {
-		parent.Add(node)
-	}
 	node.children = make([]Node, 0)
 	return node
 }

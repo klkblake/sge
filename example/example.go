@@ -28,6 +28,7 @@ func main() {
 	yaw := float64(0)
 	pitch := float64(0)
 	cameraChanged := false
+	cameraRotated := false
 mainloop:
 	for {
 		select {
@@ -38,6 +39,7 @@ mainloop:
 					pitch = 90
 				}
 				cameraChanged = true
+				cameraRotated = true
 			}
 			if keystate[sdl.K_DOWN] == 1 {
 				pitch -= 3
@@ -45,6 +47,7 @@ mainloop:
 					pitch = -90
 				}
 				cameraChanged = true
+				cameraRotated = true
 			}
 			if keystate[sdl.K_LEFT] == 1 {
 				yaw += 3
@@ -52,6 +55,7 @@ mainloop:
 					yaw -= 360
 				}
 				cameraChanged = true
+				cameraRotated = true
 			}
 			if keystate[sdl.K_RIGHT] == 1 {
 				yaw -= 3
@@ -59,24 +63,32 @@ mainloop:
 					yaw += 360
 				}
 				cameraChanged = true
+				cameraRotated = true
 			}
 			if keystate[sdl.K_w] == 1 {
 				view.Camera.MoveLocal(s3dm.NewV3(0, 0, -0.01))
+				cameraChanged = true
 			}
 			if keystate[sdl.K_s] == 1 {
 				view.Camera.MoveLocal(s3dm.NewV3(0, 0, 0.01))
+				cameraChanged = true
 			}
 			if keystate[sdl.K_a] == 1 {
 				view.Camera.MoveLocal(s3dm.NewV3(-0.01, 0, 0))
+				cameraChanged = true
 			}
 			if keystate[sdl.K_d] == 1 {
 				view.Camera.MoveLocal(s3dm.NewV3(0.01, 0, 0))
+				cameraChanged = true
 			}
-			if cameraChanged {
-				cameraChanged = false
+			if cameraRotated {
+				cameraRotated = false
 				view.Camera.SetIdentity()
 				view.Camera.RotateGlobal(yaw, s3dm.NewV3(0, 1, 0))
 				view.Camera.RotateGlobal(pitch, s3dm.NewV3(1, 0, 0))
+			}
+			if cameraChanged {
+				cameraChanged = false
 				view.Update()
 			}
 			world.Update(t)
