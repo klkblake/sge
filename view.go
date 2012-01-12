@@ -44,7 +44,7 @@ func NewView(title string, width int, height int, near float64, far float64) *Vi
 }
 
 func calcPerspectiveMatrix(fovy float64, aspect float64, near float64, far float64) *Mat4 {
-	top := near*math.Tan(fovy)
+	top := near*math.Tan(fovy*0.5)
 	right := aspect*top
 	return &Mat4{
 		near/right, 0, 0, 0,
