@@ -7,7 +7,7 @@ import "gl"
 type Mesh struct {
 	Verticies interface{}
 	Texcoords interface{}
-	Indicies []uint16
+	Indicies []uint32
 	verticiesValue reflect.Value
 	texcoordsValue reflect.Value
 	vertexDimensions uint
@@ -18,7 +18,7 @@ type Mesh struct {
 	indexBO gl.Buffer
 }
 
-func NewMesh(verticies interface{}, texcoords interface{}, indicies []uint16, vertexDimensions uint) *Mesh {
+func NewMesh(verticies interface{}, texcoords interface{}, indicies []uint32, vertexDimensions uint) *Mesh {
 	mesh := new(Mesh)
 	mesh.Verticies = verticies
 	mesh.Texcoords = texcoords
@@ -87,5 +87,5 @@ func (mesh *Mesh) Delete() {
 
 func (mesh *Mesh) Render() {
 	mesh.vao.Bind()
-	gl.DrawElements(gl.TRIANGLES, len(mesh.Indicies), gl.UNSIGNED_SHORT, 0)
+	gl.DrawElements(gl.TRIANGLES, len(mesh.Indicies), gl.UNSIGNED_INT, 0)
 }
