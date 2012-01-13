@@ -52,7 +52,12 @@ func setupVBO(location int, data reflect.Value, dimensions uint) gl.Buffer {
 	buf := createBuffer(gl.ARRAY_BUFFER, data)
 	attrib := gl.AttribLocation(location)
 	attrib.EnableArray()
-	attrib.AttribPointerOffset(dimensions, glType(data), false, 0, 0)
+	t := glType(data)
+	if t == gl.FLOAT || t == gl.DOUBLE {
+		attrib.AttribPointerOffset(dimensions, t, false, 0, 0)
+	} else {
+		attrib.AttribIPointerOffset(dimensions, t, 0, 0)
+	}
 	return buf
 }
 

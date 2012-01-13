@@ -1,7 +1,13 @@
 package sge
 
-import "gl"
-import "atom/sdl"
+import (
+	"unsafe"
+)
+
+import (
+	"gl"
+	"atom/sdl"
+)
 
 var boundTexture map[gl.GLenum]*Texture
 
@@ -20,6 +26,13 @@ func NewTexture2D() *Texture {
 	tex := new(Texture)
 	tex.Texture = gl.GenTexture()
 	tex.Type = gl.TEXTURE_2D
+	return tex
+}
+
+func NewTextureArray() *Texture {
+	tex := new(Texture)
+	tex.Texture = gl.GenTexture()
+	tex.Type = gl.TEXTURE_2D_ARRAY
 	return tex
 }
 
@@ -42,14 +55,52 @@ func LoadTexture2D(filename string, minFilter int, magFilter int) *Texture {
 	tex.SetFilters(minFilter, magFilter)
 	tex.Bind()
 	gl.TexParameteri(gl.TEXTURE_2D, gl.GENERATE_MIPMAP, gl.TRUE)
-	uploadSurface(gl.TEXTURE_2D, surface, minFilter, magFilter)
+	uploadSurface(gl.TEXTURE_2D, surface)
+	return tex
+}
+
+func LoadTextureArray(filenames []string, minFilter int, magFilter int) *Texture {
+	surfaces := make([]*sdl.Surface, len(filenames))
+	for i, filename := range filenames {
+		surfaces[i] = sdl.Load(filename)
+		defer surfaces[i].Free()
+		if surfaces[i] == nil {
+			panic(sdl.GetError())
+		}
+	}
+	tex := NewTextureArray()
+	tex.Width = int(surfaces[0].W)
+	tex.Height = int(surfaces[0].H)
+	tex.SetFilters(minFilter, magFilter)
+	tex.Bind()
+	gl.TexParameteri(gl.TEXTURE_2D_ARRAY, gl.GENERATE_MIPMAP, gl.TRUE)
+	var internalFormat int
+	var format gl.GLenum
+	var size int
+	if surfaces[0].Format.BitsPerPixel == 32 {
+		internalFormat = gl.RGBA8
+		format = gl.RGBA
+		size = 4
+	} else {
+		internalFormat = gl.RGB8
+		format = gl.RGB
+		size = 3
+	}
+	pixels := make([]byte, tex.Width*tex.Height*len(surfaces)*size)
+	for i, surface := range surfaces {
+		p := uintptr(surface.Pixels)
+		for j := 0; j < tex.Width*tex.Height*size; j++ {
+			pixels[i*tex.Width*tex.Height*size + j] = *(*byte)(unsafe.Pointer(p+uintptr(j)))
+		}
+	}
+	gl.TexImage3D(gl.TEXTURE_2D_ARRAY, 0, internalFormat, tex.Width, tex.Height, len(surfaces), 0, format, gl.UNSIGNED_BYTE, pixels)
 	return tex
 }
 
 func LoadTextureCubeMap(filenames *[6]string, minFilter int, magFilter int) *Texture {
 	var surfaces [6]*sdl.Surface
-	for i, _ := range surfaces {
-		surfaces[i] = sdl.Load(filenames[i])
+	for i, filename := range filenames {
+		surfaces[i] = sdl.Load(filename)
 		defer surfaces[i].Free()
 		if surfaces[i] == nil {
 			panic(sdl.GetError())
@@ -58,29 +109,19 @@ func LoadTextureCubeMap(filenames *[6]string, minFilter int, magFilter int) *Tex
 	tex := NewTextureCubeMap()
 	tex.Width = int(surfaces[0].W)
 	tex.Height = int(surfaces[0].H)
-	PanicOnError()
 	tex.SetFilters(minFilter, magFilter)
-	PanicOnError()
 	tex.Bind()
-	PanicOnError()
 	gl.TexParameteri(gl.TEXTURE_CUBE_MAP, gl.GENERATE_MIPMAP, gl.TRUE)
-	PanicOnError()
-	uploadSurface(gl.TEXTURE_CUBE_MAP_POSITIVE_X, surfaces[0], minFilter, magFilter)
-	PanicOnError()
-	uploadSurface(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, surfaces[1], minFilter, magFilter)
-	PanicOnError()
-	uploadSurface(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, surfaces[2], minFilter, magFilter)
-	PanicOnError()
-	uploadSurface(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, surfaces[3], minFilter, magFilter)
-	PanicOnError()
-	uploadSurface(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, surfaces[4], minFilter, magFilter)
-	PanicOnError()
-	uploadSurface(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, surfaces[5], minFilter, magFilter)
-	PanicOnError()
+	uploadSurface(gl.TEXTURE_CUBE_MAP_POSITIVE_X, surfaces[0])
+	uploadSurface(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, surfaces[1])
+	uploadSurface(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, surfaces[2])
+	uploadSurface(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, surfaces[3])
+	uploadSurface(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, surfaces[4])
+	uploadSurface(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, surfaces[5])
 	return tex
 }
 
-func uploadSurface(target gl.GLenum, surface *sdl.Surface, minFilter int, magFilter int) {
+func uploadSurface(target gl.GLenum, surface *sdl.Surface) {
 	if target == gl.TEXTURE_CUBE_MAP && surface.W != surface.H {
 		panic("Non-square texture in cube map")
 	}
@@ -93,13 +134,7 @@ func uploadSurface(target gl.GLenum, surface *sdl.Surface, minFilter int, magFil
 		internalFormat = gl.RGB8
 		format = gl.RGB
 	}
-	PanicOnError()
 	gl.TexImage2D(target, 0, internalFormat, int(surface.W), int(surface.H), 0, format, gl.UNSIGNED_BYTE, (*byte)(surface.Pixels))
-	PanicOnError()
-	// Work around a driver bug in the AMD proprietary drivers.
-	//gl.Enable(gl.TEXTURE_2D)
-	// XXX Go-OpenGL currently doesn't support glGenerateMipmap
-	//gl.GenerateMipmap(gl.TEXTURE_2D)
 }
 
 func UnbindTexture2D() {
