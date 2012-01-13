@@ -45,10 +45,10 @@ func NewTextureCubeMap() *Texture {
 
 func LoadTexture2D(filename string, minFilter int, magFilter int) *Texture {
 	surface := sdl.Load(filename)
-	defer surface.Free()
 	if surface == nil {
 		panic(sdl.GetError())
 	}
+	defer surface.Free()
 	tex := NewTexture2D()
 	tex.Width = int(surface.W)
 	tex.Height = int(surface.H)
@@ -63,10 +63,10 @@ func LoadTextureArray(filenames []string, minFilter int, magFilter int) *Texture
 	surfaces := make([]*sdl.Surface, len(filenames))
 	for i, filename := range filenames {
 		surfaces[i] = sdl.Load(filename)
-		defer surfaces[i].Free()
 		if surfaces[i] == nil {
 			panic(sdl.GetError())
 		}
+		defer surfaces[i].Free()
 	}
 	tex := NewTextureArray()
 	tex.Width = int(surfaces[0].W)
@@ -101,10 +101,10 @@ func LoadTextureCubeMap(filenames *[6]string, minFilter int, magFilter int) *Tex
 	var surfaces [6]*sdl.Surface
 	for i, filename := range filenames {
 		surfaces[i] = sdl.Load(filename)
-		defer surfaces[i].Free()
 		if surfaces[i] == nil {
 			panic(sdl.GetError())
 		}
+		defer surfaces[i].Free()
 	}
 	tex := NewTextureCubeMap()
 	tex.Width = int(surfaces[0].W)
