@@ -4,6 +4,7 @@ import "gl"
 
 type Assets struct {
 	textures2D map[string]*Texture
+	texturesArray map[string]*Texture
 	texturesCubeMap map[string]*Texture
 	MinFilter int
 	MagFilter int
@@ -35,6 +36,25 @@ func (assets *Assets) Texture2D(name string) *Texture {
 
 func (assets *Assets) LoadTexture2D(name string) {
 	assets.textures2D[name] = LoadTexture2D(name, assets.MinFilter, assets.MagFilter)
+}
+
+func (assets *Assets) TextureArray(names []string) *Texture {
+	name := names[0]
+	for i := 1; i < len(names); i++ {
+		name += "\x00" + names[i]
+	}
+	if assets.texturesArray[name] == nil {
+		assets.LoadTextureArray(names)
+	}
+	return assets.texturesArray[name]
+}
+
+func (assets *Assets) LoadTextureArray(names []string) {
+	name := names[0]
+	for i := 1; i < len(names); i++ {
+		name += "\x00" + names[i]
+	}
+	assets.texturesArray[name] = LoadTextureArray(names, assets.MinFilter, assets.MagFilter)
 }
 
 func (assets *Assets) TextureCubeMap(names *[6]string) *Texture {
