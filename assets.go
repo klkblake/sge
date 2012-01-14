@@ -17,6 +17,7 @@ type Assets struct {
 func NewAssets() *Assets {
 	assets := new(Assets)
 	assets.textures2D = make(map[string]*Texture)
+	assets.texturesArray = make(map[string]*Texture)
 	assets.texturesCubeMap = make(map[string]*Texture)
 	assets.MinFilter = gl.LINEAR_MIPMAP_LINEAR
 	assets.MagFilter = gl.LINEAR
