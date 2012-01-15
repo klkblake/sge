@@ -68,7 +68,7 @@ func NewSkybox(cubeMap *Texture, shader *Program, far float64) *Skybox {
 		16, 17, 18, 16, 18, 19,
 		20, 21, 22, 20, 22, 23,
 	}
-	skybox.mesh = NewMesh(verticies, 3, indicies, verticies)
+	skybox.mesh = NewMesh(3, indicies, verticies, verticies)
 	return skybox
 }
 

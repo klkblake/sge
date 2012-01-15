@@ -5,33 +5,22 @@ import "reflect"
 import "gl"
 
 type Mesh struct {
-	Verticies interface{}
 	Attrs []interface{}
 	Indicies []uint32
-	vertexDimensions uint
-	verticiesValue reflect.Value
 	attrValues []reflect.Value
 	attrDimensions []uint
 	vao gl.VertexArray
-	vertexBO gl.Buffer
 	attrBOs []gl.Buffer
 	indexBO gl.Buffer
 }
 
-func NewMesh(verticies interface{}, vertexDimensions uint, indicies []uint32, attrs ...interface{}) *Mesh {
+func NewMesh(numVerticies uint, indicies []uint32, attrs ...interface{}) *Mesh {
 	mesh := new(Mesh)
-	mesh.Verticies = verticies
-	mesh.vertexDimensions = vertexDimensions
 	mesh.Attrs = attrs
 	mesh.Indicies = indicies
-	mesh.verticiesValue = reflect.ValueOf(verticies)
-	if mesh.verticiesValue.Kind() != reflect.Slice {
-		panic("verticies is not a slice")
-	}
 	mesh.attrValues = make([]reflect.Value, len(attrs))
 	mesh.attrDimensions = make([]uint, len(attrs))
 	mesh.attrBOs = make([]gl.Buffer, len(attrs))
-	numVerticies := uint(mesh.verticiesValue.Len()) / vertexDimensions
 	mesh.vao = gl.GenVertexArray()
 	mesh.vao.Bind()
 	for i, attr := range attrs {
@@ -40,9 +29,8 @@ func NewMesh(verticies interface{}, vertexDimensions uint, indicies []uint32, at
 			panic("an element of attrs is not a slice")
 		}
 		mesh.attrDimensions[i] = uint(mesh.attrValues[i].Len()) / numVerticies
-		mesh.attrBOs[i] = setupVBO(i+1, mesh.attrValues[i], mesh.attrDimensions[i])
+		mesh.attrBOs[i] = setupVBO(i, mesh.attrValues[i], mesh.attrDimensions[i])
 	}
-	mesh.vertexBO = setupVBO(0, mesh.verticiesValue, mesh.vertexDimensions)
 	mesh.indexBO = createBuffer(gl.ELEMENT_ARRAY_BUFFER, reflect.ValueOf(indicies))
 	return mesh
 }
@@ -91,7 +79,6 @@ func glType(data reflect.Value) gl.GLenum {
 
 func (mesh *Mesh) Delete() {
 	mesh.vao.Delete()
-	mesh.vertexBO.Delete()
 	for _, bo := range mesh.attrBOs {
 		bo.Delete()
 	}
