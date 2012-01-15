@@ -6,6 +6,7 @@ GOFILES=\
 	node.go\
 	view.go\
 	assets.go\
+	events.go\
 	texture.go\
 	shader.go\
 	program.go\
