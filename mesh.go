@@ -6,37 +6,43 @@ import "gl"
 
 type Mesh struct {
 	Verticies interface{}
-	Texcoords interface{}
+	Attrs []interface{}
 	Indicies []uint32
-	verticiesValue reflect.Value
-	texcoordsValue reflect.Value
 	vertexDimensions uint
-	texDimensions uint
+	verticiesValue reflect.Value
+	attrValues []reflect.Value
+	attrDimensions []uint
 	vao gl.VertexArray
 	vertexBO gl.Buffer
-	texcoordBO gl.Buffer
+	attrBOs []gl.Buffer
 	indexBO gl.Buffer
 }
 
-func NewMesh(verticies interface{}, texcoords interface{}, indicies []uint32, vertexDimensions uint) *Mesh {
+func NewMesh(verticies interface{}, vertexDimensions uint, indicies []uint32, attrs ...interface{}) *Mesh {
 	mesh := new(Mesh)
 	mesh.Verticies = verticies
-	mesh.Texcoords = texcoords
+	mesh.vertexDimensions = vertexDimensions
+	mesh.Attrs = attrs
 	mesh.Indicies = indicies
 	mesh.verticiesValue = reflect.ValueOf(verticies)
 	if mesh.verticiesValue.Kind() != reflect.Slice {
 		panic("verticies is not a slice")
 	}
-	mesh.texcoordsValue = reflect.ValueOf(texcoords)
-	if mesh.texcoordsValue.Kind() != reflect.Slice {
-		panic("texcoords is not a slice")
-	}
-	mesh.vertexDimensions = vertexDimensions
-	mesh.texDimensions = uint(mesh.texcoordsValue.Len() / (mesh.verticiesValue.Len() / int(vertexDimensions)))
+	mesh.attrValues = make([]reflect.Value, len(attrs))
+	mesh.attrDimensions = make([]uint, len(attrs))
+	mesh.attrBOs = make([]gl.Buffer, len(attrs))
+	numVerticies := uint(mesh.verticiesValue.Len()) / vertexDimensions
 	mesh.vao = gl.GenVertexArray()
 	mesh.vao.Bind()
+	for i, attr := range attrs {
+		mesh.attrValues[i] = reflect.ValueOf(attr)
+		if mesh.attrValues[i].Kind() != reflect.Slice {
+			panic("an element of attrs is not a slice")
+		}
+		mesh.attrDimensions[i] = uint(mesh.attrValues[i].Len()) / numVerticies
+		mesh.attrBOs[i] = setupVBO(i+1, mesh.attrValues[i], mesh.attrDimensions[i])
+	}
 	mesh.vertexBO = setupVBO(0, mesh.verticiesValue, mesh.vertexDimensions)
-	mesh.texcoordBO = setupVBO(1, mesh.texcoordsValue, mesh.texDimensions)
 	mesh.indexBO = createBuffer(gl.ELEMENT_ARRAY_BUFFER, reflect.ValueOf(indicies))
 	return mesh
 }
@@ -86,7 +92,9 @@ func glType(data reflect.Value) gl.GLenum {
 func (mesh *Mesh) Delete() {
 	mesh.vao.Delete()
 	mesh.vertexBO.Delete()
-	mesh.texcoordBO.Delete()
+	for _, bo := range mesh.attrBOs {
+		bo.Delete()
+	}
 	mesh.indexBO.Delete()
 }
 
