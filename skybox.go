@@ -28,37 +28,38 @@ func NewSkybox(cubeMap *Texture, shader *Program, far float64) *Skybox {
 	skybox.translateMatrix = NewMat4()
 	skybox.mvpMatrixUniform = shader.GetUniformLocation("mvpMatrix")
 	skybox.textureUnitUniform = shader.GetUniformLocation("textureUnit")
-	verticies := []float32{
+	type skyboxVertex [2][3]float32
+	verticies := []skyboxVertex{
 		// Positive X
-		1, 1, -1,
-		1, -1, -1,
-		1, -1, 1,
-		1, 1, 1,
+		{{1, 1, -1}, {1, 1, -1}},
+		{{1, -1, -1}, {1, -1, -1}},
+		{{1, -1, 1}, {1, -1, 1}},
+		{{1, 1, 1}, {1, 1, 1}},
 		// Negative X
-		-1, 1, 1,
-		-1, -1, 1,
-		-1, -1, -1,
-		-1, 1, -1,
+		{{-1, 1, 1}, {-1, 1, 1}},
+		{{-1, -1, 1}, {-1, -1, 1}},
+		{{-1, -1, -1}, {-1, -1, -1}},
+		{{-1, 1, -1}, {-1, 1, -1}},
 		// Positive Y
-		-1, 1, 1,
-		-1, 1, -1,
-		1, 1, -1,
-		1, 1, 1,
+		{{-1, 1, 1}, {-1, 1, 1}},
+		{{-1, 1, -1}, {-1, 1, -1}},
+		{{1, 1, -1}, {1, 1, -1}},
+		{{1, 1, 1}, {1, 1, 1}},
 		// Negative Y
-		-1, -1, -1,
-		-1, -1, 1,
-		1, -1, 1,
-		1, -1, -1,
+		{{-1, -1, -1}, {-1, -1, -1}},
+		{{-1, -1, 1}, {-1, -1, 1}},
+		{{1, -1, 1}, {1, -1, 1}},
+		{{1, -1, -1}, {1, -1, -1}},
 		// Positive Z
-		1, 1, 1,
-		1, -1, 1,
-		-1, -1, 1,
-		-1, 1, 1,
+		{{1, 1, 1}, {1, 1, 1}},
+		{{1, -1, 1}, {1, -1, 1}},
+		{{-1, -1, 1}, {-1, -1, 1}},
+		{{-1, 1, 1}, {-1, 1, 1}},
 		// Negative Z
-		-1, 1, -1,
-		-1, -1, -1,
-		1, -1, -1,
-		1, 1, -1,
+		{{-1, 1, -1}, {-1, 1, -1}},
+		{{-1, -1, -1}, {-1, -1, -1}},
+		{{1, -1, -1}, {1, -1, -1}},
+		{{1, 1, -1}, {1, 1, -1}},
 	}
 	indicies := []uint32 {
 		0, 1, 2, 0, 2, 3,
@@ -68,7 +69,7 @@ func NewSkybox(cubeMap *Texture, shader *Program, far float64) *Skybox {
 		16, 17, 18, 16, 18, 19,
 		20, 21, 22, 20, 22, 23,
 	}
-	skybox.mesh = NewMesh(3, indicies, verticies, verticies)
+	skybox.mesh = NewMesh(verticies, indicies)
 	return skybox
 }
 

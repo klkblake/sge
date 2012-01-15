@@ -1,35 +1,59 @@
 package sge
 
-import "reflect"
+import (
+	"reflect"
+	"unsafe"
+)
 
 import "gl"
 
 type Mesh struct {
-	Attrs []interface{}
+	Attrs interface{}
 	Indicies []uint32
-	attrValues []reflect.Value
-	attrDimensions []uint
 	vao gl.VertexArray
-	attrBOs []gl.Buffer
+	vertexBO gl.Buffer
 	indexBO gl.Buffer
 }
 
-func NewMesh(numVerticies uint, indicies []uint32, attrs ...interface{}) *Mesh {
+func NewMesh(attrs interface{}, indicies []uint32) *Mesh {
 	mesh := new(Mesh)
 	mesh.Attrs = attrs
 	mesh.Indicies = indicies
-	mesh.attrValues = make([]reflect.Value, len(attrs))
-	mesh.attrDimensions = make([]uint, len(attrs))
-	mesh.attrBOs = make([]gl.Buffer, len(attrs))
 	mesh.vao = gl.GenVertexArray()
 	mesh.vao.Bind()
-	for i, attr := range attrs {
-		mesh.attrValues[i] = reflect.ValueOf(attr)
-		if mesh.attrValues[i].Kind() != reflect.Slice {
-			panic("an element of attrs is not a slice")
+	attrsValue := reflect.ValueOf(attrs)
+	if attrsValue.Kind() != reflect.Slice {
+		panic("attrs is not a slice")
+	}
+	mesh.vertexBO = createBuffer(gl.ARRAY_BUFFER, reflect.ValueOf(attrs))
+	vertexSpec := attrsValue.Type().Elem()
+	if vertexSpec.Kind() != reflect.Struct && vertexSpec.Kind() != reflect.Array {
+		panic("attrs is not a slice of structs or arrays")
+	}
+	var num int
+	if vertexSpec.Kind() == reflect.Struct {
+		num = vertexSpec.NumField()
+	} else {
+		num = vertexSpec.Len()
+	}
+	for i, offset := 0, uintptr(0); i < num; i++ {
+		var field reflect.Type
+		var type_ gl.GLenum
+		var dimensions uint
+		if vertexSpec.Kind() == reflect.Struct {
+			field = vertexSpec.Field(i).Type
+		} else {
+			field = vertexSpec.Elem()
 		}
-		mesh.attrDimensions[i] = uint(mesh.attrValues[i].Len()) / numVerticies
-		mesh.attrBOs[i] = setupVBO(i, mesh.attrValues[i], mesh.attrDimensions[i])
+		if field.Kind() == reflect.Array {
+			type_ = glType(field.Elem().Kind())
+			dimensions = uint(field.Len())
+		} else {
+			type_ = glType(field.Kind())
+			dimensions = 1
+		}
+		setupAttrib(i, type_, dimensions, offset, int(vertexSpec.Size()))
+		offset += field.Size()
 	}
 	mesh.indexBO = createBuffer(gl.ELEMENT_ARRAY_BUFFER, reflect.ValueOf(indicies))
 	return mesh
@@ -38,25 +62,22 @@ func NewMesh(numVerticies uint, indicies []uint32, attrs ...interface{}) *Mesh {
 func createBuffer(target gl.GLenum, data reflect.Value) gl.Buffer {
 	buf := gl.GenBuffer()
 	buf.Bind(target)
-	gl.BufferData(target, data.Len()*int(data.Type().Elem().Size()), data.Interface(), gl.DYNAMIC_DRAW)
+	gl.BufferData(target, data.Len()*int(data.Type().Elem().Size()), (*byte)(unsafe.Pointer(data.Pointer())), gl.DYNAMIC_DRAW)
 	return buf
 }
 
-func setupVBO(location int, data reflect.Value, dimensions uint) gl.Buffer {
-	buf := createBuffer(gl.ARRAY_BUFFER, data)
+func setupAttrib(location int, type_ gl.GLenum, dimensions uint, offset uintptr, vertexSize int) {
 	attrib := gl.AttribLocation(location)
 	attrib.EnableArray()
-	t := glType(data)
-	if t == gl.FLOAT || t == gl.DOUBLE {
-		attrib.AttribPointerOffset(dimensions, t, false, 0, 0)
+	if type_ == gl.FLOAT || type_ == gl.DOUBLE {
+		attrib.AttribPointerOffset(dimensions, type_, false, vertexSize, offset)
 	} else {
-		attrib.AttribIPointerOffset(dimensions, t, 0, 0)
+		attrib.AttribIPointerOffset(dimensions, type_, vertexSize, offset)
 	}
-	return buf
 }
 
-func glType(data reflect.Value) gl.GLenum {
-	switch data.Type().Elem().Kind() {
+func glType(data reflect.Kind) gl.GLenum {
+	switch data {
 	case reflect.Int8:
 		return gl.BYTE
 	case reflect.Int16:
@@ -79,9 +100,7 @@ func glType(data reflect.Value) gl.GLenum {
 
 func (mesh *Mesh) Delete() {
 	mesh.vao.Delete()
-	for _, bo := range mesh.attrBOs {
-		bo.Delete()
-	}
+	mesh.vertexBO.Delete()
 	mesh.indexBO.Delete()
 }
 
