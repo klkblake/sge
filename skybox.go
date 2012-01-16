@@ -1,16 +1,14 @@
 package sge
 
-import "math"
-
-import "gl"
+import (
+	"math"
+)
 
 type Skybox struct {
 	CubeMap *Texture
 	Shader *Program
 	scaleMatrix *Mat4
 	translateMatrix *Mat4
-	mvpMatrixUniform gl.UniformLocation
-	textureUnitUniform gl.UniformLocation
 	mesh *Mesh
 }
 
@@ -26,8 +24,6 @@ func NewSkybox(cubeMap *Texture, shader *Program, far float64) *Skybox {
 		0, 0, 0, 1,
 	}
 	skybox.translateMatrix = NewMat4()
-	skybox.mvpMatrixUniform = shader.GetUniformLocation("mvpMatrix")
-	skybox.textureUnitUniform = shader.GetUniformLocation("textureUnit")
 	type skyboxVertex [2][3]float32
 	verticies := []skyboxVertex{
 		// Positive X
@@ -83,9 +79,9 @@ func (skybox *Skybox) Render(view *View, mvpMatrix *Mat4, pass int) {
 	skybox.translateMatrix[13] = pos.Y
 	skybox.translateMatrix[14] = pos.Z
 	matrix := mvpMatrix.Mul(skybox.translateMatrix).Mul(skybox.scaleMatrix).GetFloat32Matrix()
-	skybox.mvpMatrixUniform.UniformMatrix4fv(false, 1, matrix[:])
+	skybox.Shader.SetUniformMatrix("mvpMatrix", matrix[:], 4)
 	if skybox.CubeMap != nil {
-		skybox.textureUnitUniform.Uniform1i(0)
+		skybox.Shader.SetUniform("textureUnit", 0)
 	}
 	skybox.mesh.Render()
 }

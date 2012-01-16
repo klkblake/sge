@@ -1,6 +1,8 @@
 package sge
 
-import "gl"
+import (
+	"github.com/chsc/gogl/gl33"
+)
 
 type Assets struct {
 	textures2D map[string]*Texture
@@ -19,8 +21,8 @@ func NewAssets() *Assets {
 	assets.textures2D = make(map[string]*Texture)
 	assets.texturesArray = make(map[string]*Texture)
 	assets.texturesCubeMap = make(map[string]*Texture)
-	assets.MinFilter = gl.LINEAR_MIPMAP_LINEAR
-	assets.MagFilter = gl.LINEAR
+	assets.MinFilter = gl33.LINEAR_MIPMAP_LINEAR
+	assets.MagFilter = gl33.LINEAR
 	assets.vertShaders = make(map[string]*Shader)
 	assets.fragShaders = make(map[string]*Shader)
 	assets.UseDefaultShaders = true

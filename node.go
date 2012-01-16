@@ -19,11 +19,11 @@ type Node interface {
 }
 
 type BasicNode struct {
-	xform *s3dm.Xform
-	aabb *s3dm.AABB
-	parent Node
+	xform    *s3dm.Xform
+	aabb     *s3dm.AABB
+	parent   Node
 	children []Node
-	passes int
+	passes   int
 }
 
 func NewBasicNode(parent Node) *BasicNode {
@@ -84,12 +84,12 @@ func (node *BasicNode) UpdateAABB() {
 		max := node.children[0].AABB().Max.Copy()
 		for i := 1; i < len(node.children); i++ {
 			child := node.children[i].AABB()
-			min.X = math.Fmin(min.X, child.Min.X)
-			min.Y = math.Fmin(min.Y, child.Min.Y)
-			min.Z = math.Fmin(min.Z, child.Min.Z)
-			max.X = math.Fmax(max.X, child.Max.X)
-			max.Y = math.Fmax(max.Y, child.Max.Y)
-			max.Z = math.Fmax(max.Z, child.Max.Z)
+			min.X = math.Min(min.X, child.Min.X)
+			min.Y = math.Min(min.Y, child.Min.Y)
+			min.Z = math.Min(min.Z, child.Min.Z)
+			max.X = math.Max(max.X, child.Max.X)
+			max.Y = math.Max(max.Y, child.Max.Y)
+			max.Z = math.Max(max.Z, child.Max.Z)
 		}
 		node.aabb.Min = min
 		node.aabb.Max = max
@@ -99,5 +99,5 @@ func (node *BasicNode) UpdateAABB() {
 	}
 }
 
-func (node *BasicNode) Update(deltaNs int64) {}
+func (node *BasicNode) Update(deltaNs int64)                         {}
 func (node *BasicNode) Render(view *View, mvpMatrix *Mat4, pass int) {}

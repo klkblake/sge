@@ -1,18 +1,21 @@
 package sge
 
-import "math"
-import "runtime"
-import "os"
+import (
+	"math"
+	"runtime"
+)
 
-import "s3dm"
-import "atom/sdl"
-import "gl"
+import (
+	"atom/sdl"
+	"github.com/chsc/gogl/gl33"
+	"s3dm"
+)
 
 type View struct {
-	Screen *sdl.Surface
-	Camera *s3dm.Frustum
+	Screen            *sdl.Surface
+	Camera            *s3dm.Frustum
 	PerspectiveMatrix *Mat4
-	ViewMatrix *Mat4
+	ViewMatrix        *Mat4
 }
 
 func NewView(title string, width int, height int, near float64, far float64) *View {
@@ -28,15 +31,18 @@ func NewView(title string, width int, height int, near float64, far float64) *Vi
 		panic(sdl.GetError())
 	}
 	sdl.WM_SetCaption(title, title)
-	gl.Init()
-	//gl.Enable(gl.BLEND)
-	gl.Enable(gl.CULL_FACE)
-	gl.Enable(gl.DEPTH_TEST)
-	gl.ClearColor(1.0, 1.0, 1.0, 1.0)
-	//gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
-	gl.Viewport(0, 0, width, height)
-	fovy := math.Pi/4
-	aspect := float64(width)/float64(height)
+	err := gl33.Init()
+	if err != nil {
+		panic(err)
+	}
+	//gl33.Enable(gl33.BLEND)
+	gl33.Enable(gl33.CULL_FACE)
+	gl33.Enable(gl33.DEPTH_TEST)
+	gl33.ClearColor(1.0, 1.0, 1.0, 1.0)
+	//gl33.BlendFunc(gl33.SRC_ALPHA, gl33.ONE_MINUS_SRC_ALPHA)
+	gl33.Viewport(0, 0, gl33.Sizei(width), gl33.Sizei(height))
+	fovy := math.Pi / 4
+	aspect := float64(width) / float64(height)
 	view.Camera = s3dm.NewFrustum(near, far, fovy, aspect)
 	view.Update()
 	view.PerspectiveMatrix = calcPerspectiveMatrix(fovy, aspect, near, far)
@@ -44,17 +50,17 @@ func NewView(title string, width int, height int, near float64, far float64) *Vi
 }
 
 func calcPerspectiveMatrix(fovy float64, aspect float64, near float64, far float64) *Mat4 {
-	top := near*math.Tan(fovy*0.5)
-	right := aspect*top
+	top := near * math.Tan(fovy*0.5)
+	right := aspect * top
 	return &Mat4{
-		near/right, 0, 0, 0,
-		0, near/top, 0, 0,
-		0, 0, -(far+near)/(far-near), -1,
-		0, 0, -2*far*near/(far-near), 0}
+		near / right, 0, 0, 0,
+		0, near / top, 0, 0,
+		0, 0, -(far + near) / (far - near), -1,
+		0, 0, -2 * far * near / (far - near), 0}
 }
 
 func (view *View) SetBackgroundColor(red, green, blue float32) {
-	gl.ClearColor(gl.GLclampf(red), gl.GLclampf(green), gl.GLclampf(blue), 1.0)
+	gl33.ClearColor(gl33.Clampf(red), gl33.Clampf(green), gl33.Clampf(blue), 1.0)
 }
 
 func (view *View) Update() {
@@ -65,13 +71,13 @@ func (view *View) Update() {
 		m[0], m[4], m[8], 0,
 		m[1], m[5], m[9], 0,
 		m[2], m[6], m[10], 0,
-		-(m[0]*m[12]+m[1]*m[13]+m[2]*m[14]),
-		-(m[4]*m[12]+m[5]*m[13]+m[6]*m[14]),
-		-(m[8]*m[12]+m[9]*m[13]+m[10]*m[14]),
+		-(m[0]*m[12] + m[1]*m[13] + m[2]*m[14]),
+		-(m[4]*m[12] + m[5]*m[13] + m[6]*m[14]),
+		-(m[8]*m[12] + m[9]*m[13] + m[10]*m[14]),
 		1}
 }
 
-func (view *View) Close() os.Error {
+func (view *View) Close() error {
 	sdl.Quit()
 	return nil
 }

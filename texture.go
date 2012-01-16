@@ -5,41 +5,41 @@ import (
 )
 
 import (
-	"gl"
+	"github.com/chsc/gogl/gl33"
 	"atom/sdl"
 )
 
-var boundTexture map[gl.GLenum]*Texture
+var boundTexture map[gl33.Enum]*Texture
 
 func init() {
-	boundTexture = make(map[gl.GLenum]*Texture)
+	boundTexture = make(map[gl33.Enum]*Texture)
 }
 
 type Texture struct {
-	gl.Texture
-	Type gl.GLenum
+	Id gl33.Uint
+	Type gl33.Enum
 	Width int
 	Height int
 }
 
 func NewTexture2D() *Texture {
 	tex := new(Texture)
-	tex.Texture = gl.GenTexture()
-	tex.Type = gl.TEXTURE_2D
+	gl33.GenTextures(1, &tex.Id)
+	tex.Type = gl33.TEXTURE_2D
 	return tex
 }
 
 func NewTextureArray() *Texture {
 	tex := new(Texture)
-	tex.Texture = gl.GenTexture()
-	tex.Type = gl.TEXTURE_2D_ARRAY
+	gl33.GenTextures(1, &tex.Id)
+	tex.Type = gl33.TEXTURE_2D_ARRAY
 	return tex
 }
 
 func NewTextureCubeMap() *Texture {
 	tex := new(Texture)
-	tex.Texture = gl.GenTexture()
-	tex.Type = gl.TEXTURE_CUBE_MAP
+	gl33.GenTextures(1, &tex.Id)
+	tex.Type = gl33.TEXTURE_CUBE_MAP
 	return tex
 }
 
@@ -54,8 +54,8 @@ func LoadTexture2D(filename string, minFilter int, magFilter int) *Texture {
 	tex.Height = int(surface.H)
 	tex.SetFilters(minFilter, magFilter)
 	tex.Bind()
-	gl.TexParameteri(gl.TEXTURE_2D, gl.GENERATE_MIPMAP, gl.TRUE)
-	uploadSurface(gl.TEXTURE_2D, surface)
+	uploadSurface(gl33.TEXTURE_2D, surface)
+	gl33.GenerateMipmap(gl33.TEXTURE_2D)
 	return tex
 }
 
@@ -73,17 +73,16 @@ func LoadTextureArray(filenames []string, minFilter int, magFilter int) *Texture
 	tex.Height = int(surfaces[0].H)
 	tex.SetFilters(minFilter, magFilter)
 	tex.Bind()
-	gl.TexParameteri(gl.TEXTURE_2D_ARRAY, gl.GENERATE_MIPMAP, gl.TRUE)
-	var internalFormat int
-	var format gl.GLenum
+	var internalFormat gl33.Int
+	var format gl33.Enum
 	var size int
 	if surfaces[0].Format.BitsPerPixel == 32 {
-		internalFormat = gl.RGBA8
-		format = gl.RGBA
+		internalFormat = gl33.RGBA8
+		format = gl33.RGBA
 		size = 4
 	} else {
-		internalFormat = gl.RGB8
-		format = gl.RGB
+		internalFormat = gl33.RGB8
+		format = gl33.RGB
 		size = 3
 	}
 	pixels := make([]byte, tex.Width*tex.Height*len(surfaces)*size)
@@ -93,7 +92,8 @@ func LoadTextureArray(filenames []string, minFilter int, magFilter int) *Texture
 			pixels[i*tex.Width*tex.Height*size + j] = *(*byte)(unsafe.Pointer(p+uintptr(j)))
 		}
 	}
-	gl.TexImage3D(gl.TEXTURE_2D_ARRAY, 0, internalFormat, tex.Width, tex.Height, len(surfaces), 0, format, gl.UNSIGNED_BYTE, pixels)
+	gl33.TexImage3D(gl33.TEXTURE_2D_ARRAY, 0, internalFormat, gl33.Sizei(tex.Width), gl33.Sizei(tex.Height), gl33.Sizei(len(surfaces)), 0, format, gl33.UNSIGNED_BYTE, gl33.Pointer(&pixels[0]))
+	gl33.GenerateMipmap(gl33.TEXTURE_2D_ARRAY)
 	return tex
 }
 
@@ -111,59 +111,56 @@ func LoadTextureCubeMap(filenames *[6]string, minFilter int, magFilter int) *Tex
 	tex.Height = int(surfaces[0].H)
 	tex.SetFilters(minFilter, magFilter)
 	tex.Bind()
-	gl.TexParameteri(gl.TEXTURE_CUBE_MAP, gl.GENERATE_MIPMAP, gl.TRUE)
-	uploadSurface(gl.TEXTURE_CUBE_MAP_POSITIVE_X, surfaces[0])
-	uploadSurface(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, surfaces[1])
-	uploadSurface(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, surfaces[2])
-	uploadSurface(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, surfaces[3])
-	uploadSurface(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, surfaces[4])
-	uploadSurface(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, surfaces[5])
+	uploadSurface(gl33.TEXTURE_CUBE_MAP_POSITIVE_X, surfaces[0])
+	uploadSurface(gl33.TEXTURE_CUBE_MAP_NEGATIVE_X, surfaces[1])
+	uploadSurface(gl33.TEXTURE_CUBE_MAP_POSITIVE_Y, surfaces[2])
+	uploadSurface(gl33.TEXTURE_CUBE_MAP_NEGATIVE_Y, surfaces[3])
+	uploadSurface(gl33.TEXTURE_CUBE_MAP_POSITIVE_Z, surfaces[4])
+	uploadSurface(gl33.TEXTURE_CUBE_MAP_NEGATIVE_Z, surfaces[5])
+	gl33.GenerateMipmap(gl33.TEXTURE_CUBE_MAP)
 	return tex
 }
 
-func uploadSurface(target gl.GLenum, surface *sdl.Surface) {
-	if target == gl.TEXTURE_CUBE_MAP && surface.W != surface.H {
+func uploadSurface(target gl33.Enum, surface *sdl.Surface) {
+	if target == gl33.TEXTURE_CUBE_MAP && surface.W != surface.H {
 		panic("Non-square texture in cube map")
 	}
-	var internalFormat int
-	var format gl.GLenum
+	var internalFormat gl33.Int
+	var format gl33.Enum
 	if surface.Format.BitsPerPixel == 32 {
-		internalFormat = gl.RGBA8
-		format = gl.RGBA
+		internalFormat = gl33.RGBA8
+		format = gl33.RGBA
 	} else {
-		internalFormat = gl.RGB8
-		format = gl.RGB
+		internalFormat = gl33.RGB8
+		format = gl33.RGB
 	}
-	gl.TexImage2D(target, 0, internalFormat, int(surface.W), int(surface.H), 0, format, gl.UNSIGNED_BYTE, (*byte)(surface.Pixels))
+	gl33.TexImage2D(target, 0, internalFormat, gl33.Sizei(surface.W), gl33.Sizei(surface.H), 0, format, gl33.UNSIGNED_BYTE, gl33.Pointer(surface.Pixels))
 }
 
 func UnbindTexture2D() {
-	boundTexture[gl.TEXTURE_2D].Unbind()
+	boundTexture[gl33.TEXTURE_2D].Unbind()
 }
 
 func UnbindTextureCubeMap() {
-	boundTexture[gl.TEXTURE_CUBE_MAP].Unbind()
+	boundTexture[gl33.TEXTURE_CUBE_MAP].Unbind()
 }
 
 func (tex *Texture) Bind() {
 	if boundTexture[tex.Type] != tex {
-		tex.Texture.Bind(tex.Type)
+		gl33.BindTexture(tex.Type, tex.Id)
 		boundTexture[tex.Type] = tex
 	}
 }
 
 func (tex *Texture) Unbind() {
 	if boundTexture[tex.Type] == tex {
-		tex.Texture.Unbind(tex.Type)
+		gl33.BindTexture(tex.Type, 0)
 		boundTexture[tex.Type] = nil
 	}
 }
 
 func (tex *Texture) SetFilters(minFilter int, magFilter int) {
 	tex.Bind()
-	PanicOnError()
-	gl.TexParameteri(tex.Type, gl.TEXTURE_MIN_FILTER, minFilter)
-	PanicOnError()
-	gl.TexParameteri(tex.Type, gl.TEXTURE_MAG_FILTER, magFilter)
-	PanicOnError()
+	gl33.TexParameteri(tex.Type, gl33.TEXTURE_MIN_FILTER, gl33.Int(minFilter))
+	gl33.TexParameteri(tex.Type, gl33.TEXTURE_MAG_FILTER, gl33.Int(magFilter))
 }

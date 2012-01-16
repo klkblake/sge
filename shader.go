@@ -1,8 +1,12 @@
 package sge
 
-import "io/ioutil"
+import (
+	"io/ioutil"
+)
 
-import "gl"
+import (
+	"github.com/chsc/gogl/gl33"
+)
 
 const defaultVertexSource =
 	"#version 330\n" +
@@ -34,29 +38,29 @@ const defaultCubeFragmentSource =
 	"}\n"
 
 type Shader struct {
-	gl.Shader
+	Id gl33.Uint
 }
 
-func NewShader(type_ gl.GLenum) *Shader {
-	shader := &Shader{gl.CreateShader(type_)}
-	if shader.Shader == 0 {
-		panic(gl.GetError())
+func NewShader(type_ gl33.Enum) *Shader {
+	shader := &Shader{gl33.CreateShader(type_)}
+	if shader.Id == 0 {
+		panic(gl33.GetError())
 	}
 	return shader
 }
 
 func NewVertexShader() *Shader {
-	return NewShader(gl.VERTEX_SHADER)
+	return NewShader(gl33.VERTEX_SHADER)
 }
 
 func NewFragmentShader() *Shader {
-	return NewShader(gl.FRAGMENT_SHADER)
+	return NewShader(gl33.FRAGMENT_SHADER)
 }
 
-func LoadShader(filename string, type_ gl.GLenum) *Shader {
+func LoadShader(filename string, type_ gl33.Enum) *Shader {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
-		panic(err.String())
+		panic(err)
 	}
 	shader := NewShader(type_)
 	shader.Source(string(data))
@@ -65,11 +69,11 @@ func LoadShader(filename string, type_ gl.GLenum) *Shader {
 }
 
 func LoadVertexShader(filename string) *Shader {
-	return LoadShader(filename, gl.VERTEX_SHADER)
+	return LoadShader(filename, gl33.VERTEX_SHADER)
 }
 
 func LoadFragmentShader(filename string) *Shader {
-	return LoadShader(filename, gl.FRAGMENT_SHADER)
+	return LoadShader(filename, gl33.FRAGMENT_SHADER)
 }
 
 func DefaultVertexShader() *Shader {
@@ -93,9 +97,30 @@ func DefaultCubeFragmentShader() *Shader {
 	return shader
 }
 
+func (shader *Shader) Get(param gl33.Enum) int {
+	var ret gl33.Int
+	gl33.GetShaderiv(shader.Id, param, &ret)
+	return int(ret)
+}
+
+func (shader *Shader) GetInfoLog() string {
+	length := shader.Get(gl33.INFO_LOG_LENGTH)
+	log := gl33.GLStringAlloc(gl33.Sizei(length+1))
+	defer gl33.GLStringFree(log)
+	gl33.GetShaderInfoLog(shader.Id, gl33.Sizei(length), nil, log)
+	return gl33.GoString(log)
+}
+
+func (shader *Shader) Source(source string) {
+	str := gl33.GLString(source)
+	defer gl33.GLStringFree(str)
+	length := gl33.Int(len(source))
+	gl33.ShaderSource(shader.Id, 1, &str, &length)
+}
+
 func (shader *Shader) Compile() {
-	shader.Shader.Compile()
-	if shader.Get(gl.COMPILE_STATUS) == gl.FALSE {
+	gl33.CompileShader(shader.Id)
+	if shader.Get(gl33.COMPILE_STATUS) == gl33.FALSE {
 		panic(shader.GetInfoLog())
 	}
 }

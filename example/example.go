@@ -23,16 +23,19 @@ func main() {
 	})
 	world.Skybox = sge.NewSkybox(texture, shader, 10000)
 	view.SetBackgroundColor(0.25, 0.5, 0.75)
-	ticker := time.Tick(int64(1e9) / 60)
+	ticker := time.Tick(time.Second / 60)
 	keystate := sdl.GetKeyState()
 	yaw := float64(0)
 	pitch := float64(0)
 	cameraChanged := false
 	cameraRotated := false
+	last := time.Now()
 mainloop:
 	for {
 		select {
 		case t := <-ticker:
+			delta := t.Sub(last)
+			last = t
 			if keystate[sdl.K_UP] == 1 {
 				pitch += 3
 				if pitch > 90 {
@@ -91,10 +94,10 @@ mainloop:
 				cameraChanged = false
 				view.Update()
 			}
-			world.Update(t)
+			world.Update(delta.Nanoseconds())
 			world.Render(view)
 		case event := <-sdl.Events:
-			switch e := event.(type) {
+			switch event.(type) {
 			case sdl.QuitEvent:
 				break mainloop
 			}

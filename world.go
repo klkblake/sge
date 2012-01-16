@@ -1,7 +1,9 @@
 package sge
 
-import "gl"
-import "atom/sdl"
+import (
+	"github.com/chsc/gogl/gl33"
+	"atom/sdl"
+)
 
 const (
 	PassOpaque = 1 << iota
@@ -39,7 +41,7 @@ func update(node Node, deltaNs int64) {
 }
 
 func (world *World) Render(view *View) {
-	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+	gl33.Clear(gl33.COLOR_BUFFER_BIT | gl33.DEPTH_BUFFER_BIT)
 	world.matrixStack.Push(view.PerspectiveMatrix)
 	world.matrixStack.Push(view.ViewMatrix)
 	render(world.Root, view, world.matrixStack, PassOpaque)
