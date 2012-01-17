@@ -1,6 +1,12 @@
 package sge
 
-import "strconv"
+import (
+	"strconv"
+)
+
+import (
+	"s3dm"
+)
 
 // 4x4 matrix in column-major order.
 type Mat4 [4 * 4]float64
@@ -29,6 +35,10 @@ func (m *Mat4) GetFloat32Matrix() [4 * 4]float32 {
 		matrix[i] = float32(v)
 	}
 	return *matrix
+}
+
+func (m *Mat4) Position() *s3dm.V3 {
+	return s3dm.NewV3(m[12], m[13], m[14])
 }
 
 func (m *Mat4) Mul(o *Mat4) *Mat4 {

@@ -80,16 +80,18 @@ func (node *BasicNode) UpdateAABB() {
 		node.aabb.Min = s3dm.NewV3(0, 0, 0)
 		node.aabb.Max = s3dm.NewV3(0, 0, 0)
 	} else {
-		min := node.children[0].AABB().Min.Copy()
-		max := node.children[0].AABB().Max.Copy()
+		pos := node.children[0].Xform().Position()
+		min := pos.Add(node.children[0].AABB().Min.Copy())
+		max := pos.Add(node.children[0].AABB().Max.Copy())
 		for i := 1; i < len(node.children); i++ {
 			child := node.children[i].AABB()
-			min.X = math.Min(min.X, child.Min.X)
-			min.Y = math.Min(min.Y, child.Min.Y)
-			min.Z = math.Min(min.Z, child.Min.Z)
-			max.X = math.Max(max.X, child.Max.X)
-			max.Y = math.Max(max.Y, child.Max.Y)
-			max.Z = math.Max(max.Z, child.Max.Z)
+			pos = node.children[i].Xform().Position()
+			min.X = math.Min(min.X, child.Min.X + pos.X)
+			min.Y = math.Min(min.Y, child.Min.Y + pos.Y)
+			min.Z = math.Min(min.Z, child.Min.Z + pos.Z)
+			max.X = math.Max(max.X, child.Max.X + pos.X)
+			max.Y = math.Max(max.Y, child.Max.Y + pos.Y)
+			max.Z = math.Max(max.Z, child.Max.Z + pos.Z)
 		}
 		node.aabb.Min = min
 		node.aabb.Max = max

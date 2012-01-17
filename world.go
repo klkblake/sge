@@ -42,32 +42,29 @@ func update(node Node, deltaNs int64) {
 
 func (world *World) Render(view *View) {
 	gl33.Clear(gl33.COLOR_BUFFER_BIT | gl33.DEPTH_BUFFER_BIT)
-	world.matrixStack.Push(view.PerspectiveMatrix)
-	world.matrixStack.Push(view.ViewMatrix)
-	render(world.Root, view, world.matrixStack, PassOpaque)
+	vpMatrix := view.PerspectiveMatrix.Mul(view.ViewMatrix)
+	render(world.Root, view, vpMatrix, world.matrixStack, PassOpaque)
 	if world.Skybox != nil {
-		world.Skybox.Render(view, world.matrixStack.Top(), PassOpaque)
+		world.Skybox.Render(view, vpMatrix.Mul(world.matrixStack.Top()), PassOpaque)
 	}
-	render(world.Root, view, world.matrixStack, PassTranslucent)
-	world.matrixStack.Pop()
-	world.matrixStack.Pop()
+	render(world.Root, view, vpMatrix, world.matrixStack, PassTranslucent)
 	// XXX Setup orthographic projection.
-	render(world.Gui, view, world.matrixStack, PassOpaque)
-	render(world.Gui, view, world.matrixStack, PassTranslucent)
+	render(world.Gui, view, vpMatrix, world.matrixStack, PassOpaque)
+	render(world.Gui, view, vpMatrix, world.matrixStack, PassTranslucent)
 	sdl.GL_SwapBuffers()
 }
 
-func render(node Node, view *View, matrixStack *Mat4Stack, pass int) {
+func render(node Node, view *View, vpMatrix *Mat4, matrixStack *Mat4Stack, pass int) {
 	modelMatrix := Mat4(node.Xform().GetMatrix4())
 	matrixStack.Push(&modelMatrix)
 	defer matrixStack.Pop()
-	if view.Camera.IntersectsAABB(node.AABB()) < 0 {
+	if view.Camera.IntersectsAABB(node.AABB().MoveGlobal(matrixStack.Top().Position())) < 0 {
 		return
 	}
 	if pass & node.Passes() != 0 {
-		node.Render(view, matrixStack.Top(), pass)
+		node.Render(view, vpMatrix.Mul(matrixStack.Top()), pass)
 	}
 	for _, child := range node.Children() {
-		render(child, view, matrixStack, pass)
+		render(child, view, vpMatrix, matrixStack, pass)
 	}
 }
