@@ -25,11 +25,11 @@ type MouseMover interface {
 }
 
 type Events struct {
-	KeyPressers []KeyPresser
-	KeyReleasers []KeyReleaser
-	MousePressers []MousePresser
+	KeyPressers    []KeyPresser
+	KeyReleasers   []KeyReleaser
+	MousePressers  []MousePresser
 	MouseReleasers []MouseReleaser
-	MouseMovers []MouseMover
+	MouseMovers    []MouseMover
 }
 
 func NewEvents() *Events {

@@ -9,11 +9,11 @@ import (
 )
 
 type Mesh struct {
-	Attrs interface{}
+	Attrs    interface{}
 	Indicies []uint32
-	vao gl33.Uint
+	vao      gl33.Uint
 	vertexBO gl33.Uint
-	indexBO gl33.Uint
+	indexBO  gl33.Uint
 }
 
 func NewMesh(attrs interface{}, indicies []uint32) *Mesh {

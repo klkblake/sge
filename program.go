@@ -30,7 +30,7 @@ func (program *Program) Get(param gl33.Enum) int {
 
 func (program *Program) GetInfoLog() string {
 	length := program.Get(gl33.INFO_LOG_LENGTH)
-	log := gl33.GLStringAlloc(gl33.Sizei(length+1))
+	log := gl33.GLStringAlloc(gl33.Sizei(length + 1))
 	defer gl33.GLStringFree(log)
 	gl33.GetProgramInfoLog(program.Id, gl33.Sizei(length), nil, log)
 	return gl33.GoString(log)
@@ -91,16 +91,16 @@ func (program *Program) SetUniformVector(name string, data interface{}, size int
 
 func (program *Program) SetUniformMatrix(name string, data []float32, size int) {
 	if size < 2 || size > 4 {
-		panic ("Invalid size")
+		panic("Invalid size")
 	}
 	location := gl33.Int(program.GetUniformLocation(name))
 	switch size {
 	case 2:
-		gl33.UniformMatrix2fv(location, gl33.Sizei(len(data) / (size*size)), gl33.FALSE, (*gl33.Float)(&data[0]))
+		gl33.UniformMatrix2fv(location, gl33.Sizei(len(data)/(size*size)), gl33.FALSE, (*gl33.Float)(&data[0]))
 	case 3:
-		gl33.UniformMatrix3fv(location, gl33.Sizei(len(data) / (size*size)), gl33.FALSE, (*gl33.Float)(&data[0]))
+		gl33.UniformMatrix3fv(location, gl33.Sizei(len(data)/(size*size)), gl33.FALSE, (*gl33.Float)(&data[0]))
 	case 4:
-		gl33.UniformMatrix4fv(location, gl33.Sizei(len(data) / (size*size)), gl33.FALSE, (*gl33.Float)(&data[0]))
+		gl33.UniformMatrix4fv(location, gl33.Sizei(len(data)/(size*size)), gl33.FALSE, (*gl33.Float)(&data[0]))
 	}
 }
 

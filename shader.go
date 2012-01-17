@@ -8,8 +8,7 @@ import (
 	"github.com/chsc/gogl/gl33"
 )
 
-const defaultVertexSource =
-	"#version 330\n" +
+const defaultVertexSource = "#version 330\n" +
 	"layout(location=0) in vec3 position;\n" +
 	"layout(location=1) in vec3 texcoord;\n" +
 	"out vec3 fragTexcoord;\n" +
@@ -19,8 +18,7 @@ const defaultVertexSource =
 	"	fragTexcoord = texcoord;\n" +
 	"}\n"
 
-const defaultFragmentSource =
-	"#version 330\n" +
+const defaultFragmentSource = "#version 330\n" +
 	"uniform sampler2D textureUnit;\n" +
 	"in vec3 fragTexcoord;\n" +
 	"out vec4 color;\n" +
@@ -28,8 +26,7 @@ const defaultFragmentSource =
 	"	color = texture(textureUnit, fragTexcoord.xy);\n" +
 	"}\n"
 
-const defaultCubeFragmentSource =
-	"#version 330\n" +
+const defaultCubeFragmentSource = "#version 330\n" +
 	"uniform samplerCube textureUnit;\n" +
 	"in vec3 fragTexcoord;\n" +
 	"out vec4 color;\n" +
@@ -105,7 +102,7 @@ func (shader *Shader) Get(param gl33.Enum) int {
 
 func (shader *Shader) GetInfoLog() string {
 	length := shader.Get(gl33.INFO_LOG_LENGTH)
-	log := gl33.GLStringAlloc(gl33.Sizei(length+1))
+	log := gl33.GLStringAlloc(gl33.Sizei(length + 1))
 	defer gl33.GLStringFree(log)
 	gl33.GetShaderInfoLog(shader.Id, gl33.Sizei(length), nil, log)
 	return gl33.GoString(log)

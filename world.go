@@ -1,8 +1,8 @@
 package sge
 
 import (
-	"github.com/chsc/gogl/gl33"
 	"atom/sdl"
+	"github.com/chsc/gogl/gl33"
 )
 
 const (
@@ -11,9 +11,9 @@ const (
 )
 
 type World struct {
-	Root Node
-	Skybox Renderer
-	Gui Node
+	Root        Node
+	Skybox      Renderer
+	Gui         Node
 	matrixStack *Mat4Stack
 }
 
@@ -61,7 +61,7 @@ func render(node Node, view *View, vpMatrix *Mat4, matrixStack *Mat4Stack, pass 
 	if view.Camera.IntersectsAABB(node.AABB().MoveGlobal(matrixStack.Top().Position())) < 0 {
 		return
 	}
-	if pass & node.Passes() != 0 {
+	if pass&node.Passes() != 0 {
 		node.Render(view, vpMatrix.Mul(matrixStack.Top()), pass)
 	}
 	for _, child := range node.Children() {

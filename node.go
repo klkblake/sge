@@ -86,12 +86,12 @@ func (node *BasicNode) UpdateAABB() {
 		for i := 1; i < len(node.children); i++ {
 			child := node.children[i].AABB()
 			pos = node.children[i].Xform().Position()
-			min.X = math.Min(min.X, child.Min.X + pos.X)
-			min.Y = math.Min(min.Y, child.Min.Y + pos.Y)
-			min.Z = math.Min(min.Z, child.Min.Z + pos.Z)
-			max.X = math.Max(max.X, child.Max.X + pos.X)
-			max.Y = math.Max(max.Y, child.Max.Y + pos.Y)
-			max.Z = math.Max(max.Z, child.Max.Z + pos.Z)
+			min.X = math.Min(min.X, child.Min.X+pos.X)
+			min.Y = math.Min(min.Y, child.Min.Y+pos.Y)
+			min.Z = math.Min(min.Z, child.Min.Z+pos.Z)
+			max.X = math.Max(max.X, child.Max.X+pos.X)
+			max.Y = math.Max(max.Y, child.Max.Y+pos.Y)
+			max.Z = math.Max(max.Z, child.Max.Z+pos.Z)
 		}
 		node.aabb.Min = min
 		node.aabb.Max = max

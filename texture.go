@@ -5,8 +5,8 @@ import (
 )
 
 import (
-	"github.com/chsc/gogl/gl33"
 	"atom/sdl"
+	"github.com/chsc/gogl/gl33"
 )
 
 var boundTexture map[gl33.Enum]*Texture
@@ -16,9 +16,9 @@ func init() {
 }
 
 type Texture struct {
-	Id gl33.Uint
-	Type gl33.Enum
-	Width int
+	Id     gl33.Uint
+	Type   gl33.Enum
+	Width  int
 	Height int
 }
 
@@ -89,7 +89,7 @@ func LoadTextureArray(filenames []string, minFilter int, magFilter int) *Texture
 	for i, surface := range surfaces {
 		p := uintptr(surface.Pixels)
 		for j := 0; j < tex.Width*tex.Height*size; j++ {
-			pixels[i*tex.Width*tex.Height*size + j] = *(*byte)(unsafe.Pointer(p+uintptr(j)))
+			pixels[i*tex.Width*tex.Height*size+j] = *(*byte)(unsafe.Pointer(p + uintptr(j)))
 		}
 	}
 	gl33.TexImage3D(gl33.TEXTURE_2D_ARRAY, 0, internalFormat, gl33.Sizei(tex.Width), gl33.Sizei(tex.Height), gl33.Sizei(len(surfaces)), 0, format, gl33.UNSIGNED_BYTE, gl33.Pointer(&pixels[0]))

@@ -5,15 +5,15 @@ import (
 )
 
 type Assets struct {
-	textures2D map[string]*Texture
-	texturesArray map[string]*Texture
-	texturesCubeMap map[string]*Texture
-	MinFilter int
-	MagFilter int
-	vertShaders map[string]*Shader
-	fragShaders map[string]*Shader
+	textures2D        map[string]*Texture
+	texturesArray     map[string]*Texture
+	texturesCubeMap   map[string]*Texture
+	MinFilter         int
+	MagFilter         int
+	vertShaders       map[string]*Shader
+	fragShaders       map[string]*Shader
 	UseDefaultShaders bool
-	shaderPrograms map[string]*Program
+	shaderPrograms    map[string]*Program
 }
 
 func NewAssets() *Assets {
