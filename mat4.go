@@ -1,6 +1,7 @@
 package sge
 
 import (
+	"math"
 	"strconv"
 )
 
@@ -15,6 +16,24 @@ func NewMat4() *Mat4 {
 	matrix := new(Mat4)
 	matrix.SetIdentity()
 	return matrix
+}
+
+func NewPerspectiveMat4(fovy, aspect, near, far float64) *Mat4 {
+	top := near * math.Tan(fovy*0.5)
+	right := aspect * top
+	return &Mat4{
+		near / right, 0, 0, 0,
+		0, near / top, 0, 0,
+		0, 0, -(far + near) / (far - near), -1,
+		0, 0, -2 * far * near / (far - near), 0}
+}
+
+func NewOrthographicMat4(width, height, near, far float64) *Mat4 {
+	return &Mat4{
+		2/width, 0, 0, 0,
+		0, 2/height, 0, 0,
+		0, 0, 2/(near-far), 0,
+		-1, -1, (near+far)/(near-far), 1}
 }
 
 func (m *Mat4) SetIdentity() {

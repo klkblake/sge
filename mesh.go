@@ -16,6 +16,11 @@ type Mesh struct {
 	indexBO  gl33.Uint
 }
 
+type DefaultVertex struct {
+	Vertex [3]float32
+	Texcoords [2] float32
+}
+
 func NewMesh(attrs interface{}, indicies []uint32) *Mesh {
 	mesh := new(Mesh)
 	mesh.Attrs = attrs

@@ -12,10 +12,13 @@ import (
 )
 
 type View struct {
-	Screen            *sdl.Surface
-	Camera            *s3dm.Frustum
-	PerspectiveMatrix *Mat4
-	ViewMatrix        *Mat4
+	Screen             *sdl.Surface
+	Camera             *s3dm.Frustum
+	Width              int
+	Height             int
+	PerspectiveMatrix  *Mat4
+	OrthographicMatrix *Mat4
+	ViewMatrix         *Mat4
 }
 
 func NewView(title string, width int, height int, near float64, far float64) *View {
@@ -45,18 +48,11 @@ func NewView(title string, width int, height int, near float64, far float64) *Vi
 	aspect := float64(width) / float64(height)
 	view.Camera = s3dm.NewFrustum(near, far, fovy, aspect)
 	view.Update()
-	view.PerspectiveMatrix = calcPerspectiveMatrix(fovy, aspect, near, far)
+	view.Width = width
+	view.Height = height
+	view.PerspectiveMatrix = NewPerspectiveMat4(fovy, aspect, near, far)
+	view.OrthographicMatrix = NewOrthographicMat4(float64(width), float64(height), 0, 1)
 	return view
-}
-
-func calcPerspectiveMatrix(fovy float64, aspect float64, near float64, far float64) *Mat4 {
-	top := near * math.Tan(fovy*0.5)
-	right := aspect * top
-	return &Mat4{
-		near / right, 0, 0, 0,
-		0, near / top, 0, 0,
-		0, 0, -(far + near) / (far - near), -1,
-		0, 0, -2 * far * near / (far - near), 0}
 }
 
 func (view *View) SetBackgroundColor(red, green, blue float32) {
