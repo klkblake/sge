@@ -38,11 +38,11 @@ func NewView(title string, width int, height int, near float64, far float64) *Vi
 	if err != nil {
 		panic(err)
 	}
-	//gl33.Enable(gl33.BLEND)
+	gl33.Enable(gl33.BLEND)
 	gl33.Enable(gl33.CULL_FACE)
 	gl33.Enable(gl33.DEPTH_TEST)
 	gl33.ClearColor(1.0, 1.0, 1.0, 1.0)
-	//gl33.BlendFunc(gl33.SRC_ALPHA, gl33.ONE_MINUS_SRC_ALPHA)
+	gl33.BlendFunc(gl33.SRC_ALPHA, gl33.ONE_MINUS_SRC_ALPHA)
 	gl33.Viewport(0, 0, gl33.Sizei(width), gl33.Sizei(height))
 	fovy := math.Pi / 4
 	aspect := float64(width) / float64(height)
