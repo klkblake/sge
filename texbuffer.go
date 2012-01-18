@@ -31,6 +31,7 @@ func NewTextureBuffer(data interface{}) *TextureBuffer {
 	case [][4]uint16:
 		format = gl33.RGBA16
 	}
+	texbuf.Bind(0)
 	gl33.TexBuffer(gl33.TEXTURE_BUFFER, format, texbuf.Buffer.Id)
 	return texbuf
 }
