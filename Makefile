@@ -11,6 +11,7 @@ GOFILES=\
 	shader.go\
 	program.go\
 	mesh.go\
+	buffer.go\
 	skybox.go\
 	renderer.go\
 	mat4.go\

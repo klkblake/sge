@@ -12,8 +12,8 @@ type Mesh struct {
 	Attrs    interface{}
 	Indicies []uint32
 	vao      gl33.Uint
-	vertexBO gl33.Uint
-	indexBO  gl33.Uint
+	vertexBO *Buffer
+	indexBO  *Buffer
 }
 
 type DefaultVertex struct {
@@ -28,10 +28,7 @@ func NewMesh(attrs interface{}, indicies []uint32) *Mesh {
 	gl33.GenVertexArrays(1, &mesh.vao)
 	gl33.BindVertexArray(mesh.vao)
 	attrsValue := reflect.ValueOf(attrs)
-	if attrsValue.Kind() != reflect.Slice {
-		panic("attrs is not a slice")
-	}
-	mesh.vertexBO = createBuffer(gl33.ARRAY_BUFFER, reflect.ValueOf(attrs))
+	mesh.vertexBO = NewBuffer(gl33.ARRAY_BUFFER, attrs)
 	vertexSpec := attrsValue.Type().Elem()
 	if vertexSpec.Kind() != reflect.Struct && vertexSpec.Kind() != reflect.Array {
 		panic("attrs is not a slice of structs or arrays")
@@ -61,16 +58,8 @@ func NewMesh(attrs interface{}, indicies []uint32) *Mesh {
 		setupAttrib(gl33.Uint(i), type_, dimensions, offset, int(vertexSpec.Size()))
 		offset += field.Size()
 	}
-	mesh.indexBO = createBuffer(gl33.ELEMENT_ARRAY_BUFFER, reflect.ValueOf(indicies))
+	mesh.indexBO = NewBuffer(gl33.ELEMENT_ARRAY_BUFFER, indicies)
 	return mesh
-}
-
-func createBuffer(target gl33.Enum, data reflect.Value) gl33.Uint {
-	var buf gl33.Uint
-	gl33.GenBuffers(1, &buf)
-	gl33.BindBuffer(target, buf)
-	gl33.BufferData(target, gl33.Sizeiptr(data.Len()*int(data.Type().Elem().Size())), gl33.Pointer(data.Pointer()), gl33.DYNAMIC_DRAW)
-	return buf
 }
 
 func setupAttrib(location gl33.Uint, type_ gl33.Enum, dimensions int, offset uintptr, vertexSize int) {
@@ -106,8 +95,8 @@ func glType(data reflect.Kind) gl33.Enum {
 
 func (mesh *Mesh) Delete() {
 	gl33.DeleteVertexArrays(1, &mesh.vao)
-	gl33.DeleteBuffers(1, &mesh.vertexBO)
-	gl33.DeleteBuffers(1, &mesh.indexBO)
+	mesh.vertexBO.Delete()
+	mesh.indexBO.Delete()
 }
 
 func (mesh *Mesh) Render() {
