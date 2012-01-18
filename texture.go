@@ -9,6 +9,7 @@ import (
 	"github.com/chsc/gogl/gl33"
 )
 
+var activeTexture int
 var boundTexture map[gl33.Enum]*Texture
 
 func init() {
@@ -53,7 +54,7 @@ func LoadTexture2D(filename string, minFilter int, magFilter int) *Texture {
 	tex.Width = int(surface.W)
 	tex.Height = int(surface.H)
 	tex.SetFilters(minFilter, magFilter)
-	tex.Bind()
+	tex.Bind(0)
 	uploadSurface(gl33.TEXTURE_2D, surface)
 	gl33.GenerateMipmap(gl33.TEXTURE_2D)
 	return tex
@@ -72,7 +73,7 @@ func LoadTextureArray(filenames []string, minFilter int, magFilter int) *Texture
 	tex.Width = int(surfaces[0].W)
 	tex.Height = int(surfaces[0].H)
 	tex.SetFilters(minFilter, magFilter)
-	tex.Bind()
+	tex.Bind(0)
 	var internalFormat gl33.Int
 	var format gl33.Enum
 	var size int
@@ -110,7 +111,7 @@ func LoadTextureCubeMap(filenames *[6]string, minFilter int, magFilter int) *Tex
 	tex.Width = int(surfaces[0].W)
 	tex.Height = int(surfaces[0].H)
 	tex.SetFilters(minFilter, magFilter)
-	tex.Bind()
+	tex.Bind(0)
 	uploadSurface(gl33.TEXTURE_CUBE_MAP_POSITIVE_X, surfaces[0])
 	uploadSurface(gl33.TEXTURE_CUBE_MAP_NEGATIVE_X, surfaces[1])
 	uploadSurface(gl33.TEXTURE_CUBE_MAP_POSITIVE_Y, surfaces[2])
@@ -145,7 +146,11 @@ func UnbindTextureCubeMap() {
 	boundTexture[gl33.TEXTURE_CUBE_MAP].Unbind()
 }
 
-func (tex *Texture) Bind() {
+func (tex *Texture) Bind(textureUnit int) {
+	if activeTexture != textureUnit {
+		gl33.ActiveTexture(gl33.Enum(gl33.TEXTURE0+textureUnit))
+		activeTexture = textureUnit
+	}
 	if boundTexture[tex.Type] != tex {
 		gl33.BindTexture(tex.Type, tex.Id)
 		boundTexture[tex.Type] = tex
@@ -160,7 +165,7 @@ func (tex *Texture) Unbind() {
 }
 
 func (tex *Texture) SetFilters(minFilter int, magFilter int) {
-	tex.Bind()
+	tex.Bind(0)
 	gl33.TexParameteri(tex.Type, gl33.TEXTURE_MIN_FILTER, gl33.Int(minFilter))
 	gl33.TexParameteri(tex.Type, gl33.TEXTURE_MAG_FILTER, gl33.Int(magFilter))
 }

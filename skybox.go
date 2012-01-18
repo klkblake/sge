@@ -71,7 +71,7 @@ func NewSkybox(cubeMap *Texture, shader *Program, far float64) *Skybox {
 
 func (skybox *Skybox) Render(view *View, mvpMatrix *Mat4, pass int) {
 	if skybox.CubeMap != nil {
-		skybox.CubeMap.Bind()
+		skybox.CubeMap.Bind(0)
 	}
 	skybox.Shader.Use()
 	pos := view.Camera.Position()
