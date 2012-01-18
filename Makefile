@@ -12,6 +12,7 @@ GOFILES=\
 	program.go\
 	mesh.go\
 	buffer.go\
+	texbuffer.go\
 	skybox.go\
 	renderer.go\
 	mat4.go\

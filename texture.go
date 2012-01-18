@@ -164,6 +164,10 @@ func (tex *Texture) Unbind() {
 	}
 }
 
+func (tex *Texture) Delete() {
+	gl33.DeleteTextures(1, &tex.Id)
+}
+
 func (tex *Texture) SetFilters(minFilter int, magFilter int) {
 	tex.Bind(0)
 	gl33.TexParameteri(tex.Type, gl33.TEXTURE_MIN_FILTER, gl33.Int(minFilter))
