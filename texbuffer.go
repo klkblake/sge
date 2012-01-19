@@ -36,6 +36,10 @@ func NewTextureBuffer(data interface{}) *TextureBuffer {
 	return texbuf
 }
 
+func (texbuf *TextureBuffer) Update() {
+	texbuf.Buffer.Update()
+}
+
 func (texbuf *TextureBuffer) Delete() {
 	texbuf.Texture.Delete()
 	texbuf.Buffer.Delete()
