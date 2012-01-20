@@ -15,7 +15,6 @@ GOFILES=\
 	texbuffer.go\
 	skybox.go\
 	renderer.go\
-	mat4.go\
 	mat4stack.go\
 	error.go\
 

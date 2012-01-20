@@ -5,6 +5,7 @@ import (
 )
 
 type Assets struct {
+	Prefix            string
 	textures2D        map[string]*Texture
 	texturesArray     map[string]*Texture
 	texturesCubeMap   map[string]*Texture
@@ -31,6 +32,7 @@ func NewAssets() *Assets {
 }
 
 func (assets *Assets) Texture2D(name string) *Texture {
+	name = assets.Prefix + name
 	if assets.textures2D[name] == nil {
 		assets.LoadTexture2D(name)
 	}
@@ -42,8 +44,10 @@ func (assets *Assets) LoadTexture2D(name string) {
 }
 
 func (assets *Assets) TextureArray(names []string) *Texture {
+	names[0] = assets.Prefix + names[0]
 	name := names[0]
 	for i := 1; i < len(names); i++ {
+		names[i] = assets.Prefix + names[i]
 		name += "\x00" + names[i]
 	}
 	if assets.texturesArray[name] == nil {
@@ -61,8 +65,10 @@ func (assets *Assets) LoadTextureArray(names []string) {
 }
 
 func (assets *Assets) TextureCubeMap(names *[6]string) *Texture {
+	names[0] = assets.Prefix + names[0]
 	name := names[0]
 	for i := 1; i < 6; i++ {
+		names[i] = assets.Prefix + names[i]
 		name += "\x00" + names[i]
 	}
 	if assets.texturesCubeMap[name] == nil {
@@ -80,6 +86,7 @@ func (assets *Assets) LoadTextureCubeMap(names *[6]string) {
 }
 
 func (assets *Assets) VertexShader(name string) *Shader {
+	name = assets.Prefix + name
 	if assets.vertShaders[name] == nil {
 		assets.LoadVertexShader(name)
 	}
@@ -87,7 +94,7 @@ func (assets *Assets) VertexShader(name string) *Shader {
 }
 
 func (assets *Assets) LoadVertexShader(name string) {
-	if name == "default" && assets.UseDefaultShaders {
+	if name == assets.Prefix+"default" && assets.UseDefaultShaders {
 		assets.vertShaders[name] = DefaultVertexShader()
 	} else {
 		assets.vertShaders[name] = LoadVertexShader(name)
@@ -95,6 +102,7 @@ func (assets *Assets) LoadVertexShader(name string) {
 }
 
 func (assets *Assets) FragmentShader(name string) *Shader {
+	name = assets.Prefix + name
 	if assets.fragShaders[name] == nil {
 		assets.LoadFragmentShader(name)
 	}
@@ -102,7 +110,7 @@ func (assets *Assets) FragmentShader(name string) *Shader {
 }
 
 func (assets *Assets) LoadFragmentShader(name string) {
-	if name == "default" && assets.UseDefaultShaders {
+	if name == assets.Prefix+"default" && assets.UseDefaultShaders {
 		assets.fragShaders[name] = DefaultFragmentShader()
 	} else if name == "defaultCube" && assets.UseDefaultShaders {
 		assets.fragShaders[name] = DefaultCubeFragmentShader()
@@ -112,6 +120,8 @@ func (assets *Assets) LoadFragmentShader(name string) {
 }
 
 func (assets *Assets) ShaderProgram(vertexName string, fragmentName string) *Program {
+	vertexName = assets.Prefix + vertexName
+	fragmentName = assets.Prefix + fragmentName
 	name := vertexName + "\x00" + fragmentName
 	if assets.shaderPrograms[name] == nil {
 		assets.LoadShaderProgram(vertexName, fragmentName)
@@ -121,7 +131,7 @@ func (assets *Assets) ShaderProgram(vertexName string, fragmentName string) *Pro
 
 func (assets *Assets) LoadShaderProgram(vertexName string, fragmentName string) {
 	name := vertexName + "\x00" + fragmentName
-	vertShader := assets.VertexShader(vertexName)
-	fragShader := assets.FragmentShader(fragmentName)
+	vertShader := assets.VertexShader(vertexName[len(assets.Prefix):])
+	fragShader := assets.FragmentShader(fragmentName[len(assets.Prefix):])
 	assets.shaderPrograms[name] = LoadShaderProgram(vertShader, fragShader)
 }

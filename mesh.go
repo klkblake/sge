@@ -17,8 +17,8 @@ type Mesh struct {
 }
 
 type DefaultVertex struct {
-	Vertex [3]float32
-	Texcoords [2] float32
+	Vertex    [3]float32
+	Texcoords [2]float32
 }
 
 func NewMesh(attrs interface{}, indicies []uint32) *Mesh {

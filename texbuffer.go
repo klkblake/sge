@@ -6,7 +6,7 @@ import (
 
 type TextureBuffer struct {
 	*Texture
-	Buffer  *Buffer
+	Buffer *Buffer
 }
 
 func NewTextureBuffer(data interface{}) *TextureBuffer {

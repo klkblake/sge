@@ -15,7 +15,7 @@ type Node interface {
 	Remove(child Node)
 	UpdateAABB()
 	Update(deltaNs int64)
-	Render(view *View, mvpMatrix *Mat4, pass int)
+	Render(view *View, mvpMatrix *s3dm.Mat4, pass int)
 }
 
 type BasicNode struct {
@@ -101,5 +101,5 @@ func (node *BasicNode) UpdateAABB() {
 	}
 }
 
-func (node *BasicNode) Update(deltaNs int64)                         {}
-func (node *BasicNode) Render(view *View, mvpMatrix *Mat4, pass int) {}
+func (node *BasicNode) Update(deltaNs int64)                              {}
+func (node *BasicNode) Render(view *View, mvpMatrix *s3dm.Mat4, pass int) {}

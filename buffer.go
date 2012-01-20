@@ -59,7 +59,7 @@ func (buffer *Buffer) Unbind() {
 func (buffer *Buffer) Update() {
 	buffer.Bind()
 	data := gl33.Pointer(buffer.Value.Pointer())
-	size := gl33.Sizeiptr(buffer.Value.Len()*int(buffer.Value.Type().Elem().Size()))
+	size := gl33.Sizeiptr(buffer.Value.Len() * int(buffer.Value.Type().Elem().Size()))
 	gl33.BufferData(buffer.Target, size, data, buffer.Type)
 }
 

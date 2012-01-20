@@ -152,7 +152,7 @@ func UnbindTextureCubeMap() {
 
 func (tex *Texture) Bind(textureUnit int) {
 	if activeTexture != textureUnit {
-		gl33.ActiveTexture(gl33.Enum(gl33.TEXTURE0+textureUnit))
+		gl33.ActiveTexture(gl33.Enum(gl33.TEXTURE0 + textureUnit))
 		activeTexture = textureUnit
 	}
 	if boundTexture[tex.Type] != tex {

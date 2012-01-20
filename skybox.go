@@ -4,11 +4,15 @@ import (
 	"math"
 )
 
+import (
+	"s3dm"
+)
+
 type Skybox struct {
 	CubeMap         *Texture
 	Shader          *Program
-	scaleMatrix     *Mat4
-	translateMatrix *Mat4
+	scaleMatrix     *s3dm.Mat4
+	translateMatrix *s3dm.Mat4
 	mesh            *Mesh
 }
 
@@ -17,13 +21,13 @@ func NewSkybox(cubeMap *Texture, shader *Program, far float64) *Skybox {
 	skybox.CubeMap = cubeMap
 	skybox.Shader = shader
 	scale := far / math.Sqrt(3)
-	skybox.scaleMatrix = &Mat4{
+	skybox.scaleMatrix = &s3dm.Mat4{
 		scale, 0, 0, 0,
 		0, scale, 0, 0,
 		0, 0, scale, 0,
 		0, 0, 0, 1,
 	}
-	skybox.translateMatrix = NewMat4()
+	skybox.translateMatrix = s3dm.NewMat4()
 	type skyboxVertex [2][3]float32
 	verticies := []skyboxVertex{
 		// Positive X
@@ -69,7 +73,7 @@ func NewSkybox(cubeMap *Texture, shader *Program, far float64) *Skybox {
 	return skybox
 }
 
-func (skybox *Skybox) Render(view *View, mvpMatrix *Mat4, pass int) {
+func (skybox *Skybox) Render(view *View, mvpMatrix *s3dm.Mat4, pass int) {
 	if skybox.CubeMap != nil {
 		skybox.CubeMap.Bind(0)
 	}
