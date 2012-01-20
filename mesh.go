@@ -101,7 +101,5 @@ func (mesh *Mesh) Delete() {
 
 func (mesh *Mesh) Render() {
 	gl33.BindVertexArray(mesh.vao)
-	PanicOnError()
 	gl33.DrawElements(gl33.TRIANGLES, gl33.Sizei(len(mesh.Indicies)), gl33.UNSIGNED_INT, gl33.Pointer(uintptr(0)))
-	PanicOnError()
 }

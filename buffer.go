@@ -36,10 +36,23 @@ func NewBuffer(target gl33.Enum, type_ gl33.Enum, data interface{}) *Buffer {
 	return buf
 }
 
+func UnbindArrayBuffer() {
+	if boundBuffer[gl33.ARRAY_BUFFER] != nil {
+		boundBuffer[gl33.ARRAY_BUFFER].Unbind()
+	}
+}
+
 func (buffer *Buffer) Bind() {
 	if boundBuffer[buffer.Target] != buffer {
 		gl33.BindBuffer(buffer.Target, buffer.Id)
 		boundBuffer[buffer.Target] = buffer
+	}
+}
+
+func (buffer *Buffer) Unbind() {
+	if boundBuffer[buffer.Target] == buffer {
+		gl33.BindBuffer(buffer.Target, 0)
+		boundBuffer[buffer.Target] = nil
 	}
 }
 

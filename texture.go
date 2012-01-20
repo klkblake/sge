@@ -139,11 +139,15 @@ func uploadSurface(target gl33.Enum, surface *sdl.Surface) {
 }
 
 func UnbindTexture2D() {
-	boundTexture[gl33.TEXTURE_2D].Unbind()
+	if boundTexture[gl33.TEXTURE_2D] != nil {
+		boundTexture[gl33.TEXTURE_2D].Unbind()
+	}
 }
 
 func UnbindTextureCubeMap() {
-	boundTexture[gl33.TEXTURE_CUBE_MAP].Unbind()
+	if boundTexture[gl33.TEXTURE_CUBE_MAP] != nil {
+		boundTexture[gl33.TEXTURE_CUBE_MAP].Unbind()
+	}
 }
 
 func (tex *Texture) Bind(textureUnit int) {
