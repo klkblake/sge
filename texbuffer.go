@@ -14,7 +14,7 @@ func NewTextureBuffer(data interface{}) *TextureBuffer {
 	texbuf.Texture = new(Texture)
 	gl33.GenTextures(1, &texbuf.Texture.Id)
 	texbuf.Texture.Type = gl33.TEXTURE_BUFFER
-	texbuf.Buffer = NewBuffer(gl33.TEXTURE_BUFFER, data)
+	texbuf.Buffer = NewBuffer(gl33.TEXTURE_BUFFER, gl33.DYNAMIC_DRAW, data)
 	texbuf.Width = texbuf.Buffer.Value.Len()
 	var format gl33.Enum
 	switch data.(type) {

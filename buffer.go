@@ -17,14 +17,16 @@ func init() {
 type Buffer struct {
 	Id     gl33.Uint
 	Target gl33.Enum
+	Type   gl33.Enum
 	Data   interface{}
 	Value  reflect.Value
 }
 
-func NewBuffer(target gl33.Enum, data interface{}) *Buffer {
+func NewBuffer(target gl33.Enum, type_ gl33.Enum, data interface{}) *Buffer {
 	buf := new(Buffer)
 	gl33.GenBuffers(1, &buf.Id)
 	buf.Target = target
+	buf.Type = type_
 	buf.Data = data
 	buf.Value = reflect.ValueOf(data)
 	if buf.Value.Kind() != reflect.Slice {
@@ -45,7 +47,7 @@ func (buffer *Buffer) Update() {
 	buffer.Bind()
 	data := gl33.Pointer(buffer.Value.Pointer())
 	size := gl33.Sizeiptr(buffer.Value.Len()*int(buffer.Value.Type().Elem().Size()))
-	gl33.BufferData(buffer.Target, size, data, gl33.DYNAMIC_DRAW)
+	gl33.BufferData(buffer.Target, size, data, buffer.Type)
 }
 
 func (buffer *Buffer) Delete() {

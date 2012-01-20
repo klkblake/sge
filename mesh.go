@@ -28,7 +28,7 @@ func NewMesh(attrs interface{}, indicies []uint32) *Mesh {
 	gl33.GenVertexArrays(1, &mesh.vao)
 	gl33.BindVertexArray(mesh.vao)
 	attrsValue := reflect.ValueOf(attrs)
-	mesh.vertexBO = NewBuffer(gl33.ARRAY_BUFFER, attrs)
+	mesh.vertexBO = NewBuffer(gl33.ARRAY_BUFFER, gl33.STATIC_DRAW, attrs)
 	vertexSpec := attrsValue.Type().Elem()
 	if vertexSpec.Kind() != reflect.Struct && vertexSpec.Kind() != reflect.Array {
 		panic("attrs is not a slice of structs or arrays")
@@ -58,7 +58,7 @@ func NewMesh(attrs interface{}, indicies []uint32) *Mesh {
 		setupAttrib(gl33.Uint(i), type_, dimensions, offset, int(vertexSpec.Size()))
 		offset += field.Size()
 	}
-	mesh.indexBO = NewBuffer(gl33.ELEMENT_ARRAY_BUFFER, indicies)
+	mesh.indexBO = NewBuffer(gl33.ELEMENT_ARRAY_BUFFER, gl33.STATIC_DRAW, indicies)
 	return mesh
 }
 
@@ -101,5 +101,7 @@ func (mesh *Mesh) Delete() {
 
 func (mesh *Mesh) Render() {
 	gl33.BindVertexArray(mesh.vao)
+	PanicOnError()
 	gl33.DrawElements(gl33.TRIANGLES, gl33.Sizei(len(mesh.Indicies)), gl33.UNSIGNED_INT, gl33.Pointer(uintptr(0)))
+	PanicOnError()
 }
