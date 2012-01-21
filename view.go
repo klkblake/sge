@@ -2,7 +2,6 @@ package sge
 
 import (
 	"math"
-	"runtime"
 )
 
 import (
@@ -23,27 +22,30 @@ type View struct {
 
 func NewView(title string, width int, height int, near float64, far float64) *View {
 	view := new(View)
-	runtime.LockOSThread()
-	if sdl.Init(sdl.INIT_VIDEO) < 0 {
-		panic(sdl.GetError())
+	done := make(chan bool, 1)
+	GL <- func() {
+		if sdl.Init(sdl.INIT_VIDEO) < 0 {
+			panic(sdl.GetError())
+		}
+		sdl.GL_SetAttribute(sdl.GL_DOUBLEBUFFER, 1)
+		sdl.GL_SetAttribute(sdl.GL_SWAP_CONTROL, 1)
+		view.Screen = sdl.SetVideoMode(width, height, 32, sdl.OPENGL)
+		if view.Screen == nil {
+			panic(sdl.GetError())
+		}
+		sdl.WM_SetCaption(title, title)
+		err := gl33.Init()
+		if err != nil {
+			panic(err)
+		}
+		gl33.Enable(gl33.BLEND)
+		gl33.Enable(gl33.CULL_FACE)
+		gl33.Enable(gl33.DEPTH_TEST)
+		gl33.ClearColor(1.0, 1.0, 1.0, 1.0)
+		gl33.BlendFunc(gl33.SRC_ALPHA, gl33.ONE_MINUS_SRC_ALPHA)
+		gl33.Viewport(0, 0, gl33.Sizei(width), gl33.Sizei(height))
+		done <- true
 	}
-	sdl.GL_SetAttribute(sdl.GL_DOUBLEBUFFER, 1)
-	sdl.GL_SetAttribute(sdl.GL_SWAP_CONTROL, 1)
-	view.Screen = sdl.SetVideoMode(width, height, 32, sdl.OPENGL)
-	if view.Screen == nil {
-		panic(sdl.GetError())
-	}
-	sdl.WM_SetCaption(title, title)
-	err := gl33.Init()
-	if err != nil {
-		panic(err)
-	}
-	gl33.Enable(gl33.BLEND)
-	gl33.Enable(gl33.CULL_FACE)
-	gl33.Enable(gl33.DEPTH_TEST)
-	gl33.ClearColor(1.0, 1.0, 1.0, 1.0)
-	gl33.BlendFunc(gl33.SRC_ALPHA, gl33.ONE_MINUS_SRC_ALPHA)
-	gl33.Viewport(0, 0, gl33.Sizei(width), gl33.Sizei(height))
 	fovy := math.Pi / 4
 	aspect := float64(width) / float64(height)
 	view.Camera = s3dm.NewFrustum(near, far, fovy, aspect)
@@ -52,11 +54,14 @@ func NewView(title string, width int, height int, near float64, far float64) *Vi
 	view.Height = height
 	view.PerspectiveMatrix = s3dm.NewPerspectiveMat4(fovy, aspect, near, far)
 	view.OrthographicMatrix = s3dm.NewOrthographicMat4(float64(width), float64(height), 0, 1)
+	<-done
 	return view
 }
 
 func (view *View) SetBackgroundColor(red, green, blue float32) {
-	gl33.ClearColor(gl33.Clampf(red), gl33.Clampf(green), gl33.Clampf(blue), 1.0)
+	GL <- func() {
+		gl33.ClearColor(gl33.Clampf(red), gl33.Clampf(green), gl33.Clampf(blue), 1.0)
+	}
 }
 
 func (view *View) Update() {

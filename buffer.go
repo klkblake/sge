@@ -24,7 +24,9 @@ type Buffer struct {
 
 func NewBuffer(target gl33.Enum, type_ gl33.Enum, data interface{}) *Buffer {
 	buf := new(Buffer)
-	gl33.GenBuffers(1, &buf.Id)
+	GL <- func() {
+		gl33.GenBuffers(1, &buf.Id)
+	}
 	buf.Target = target
 	buf.Type = type_
 	buf.Data = data
@@ -44,14 +46,18 @@ func UnbindArrayBuffer() {
 
 func (buffer *Buffer) Bind() {
 	if boundBuffer[buffer.Target] != buffer {
-		gl33.BindBuffer(buffer.Target, buffer.Id)
+		GL <- func() {
+			gl33.BindBuffer(buffer.Target, buffer.Id)
+		}
 		boundBuffer[buffer.Target] = buffer
 	}
 }
 
 func (buffer *Buffer) Unbind() {
 	if boundBuffer[buffer.Target] == buffer {
-		gl33.BindBuffer(buffer.Target, 0)
+		GL <- func() {
+			gl33.BindBuffer(buffer.Target, 0)
+		}
 		boundBuffer[buffer.Target] = nil
 	}
 }
@@ -60,9 +66,13 @@ func (buffer *Buffer) Update() {
 	buffer.Bind()
 	data := gl33.Pointer(buffer.Value.Pointer())
 	size := gl33.Sizeiptr(buffer.Value.Len() * int(buffer.Value.Type().Elem().Size()))
-	gl33.BufferData(buffer.Target, size, data, buffer.Type)
+	GL <- func() {
+		gl33.BufferData(buffer.Target, size, data, buffer.Type)
+	}
 }
 
 func (buffer *Buffer) Delete() {
-	gl33.DeleteBuffers(1, &buffer.Id)
+	GL <- func() {
+		gl33.DeleteBuffers(1, &buffer.Id)
+	}
 }

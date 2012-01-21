@@ -25,8 +25,10 @@ func NewMesh(attrs interface{}, indicies []uint32) *Mesh {
 	mesh := new(Mesh)
 	mesh.Attrs = attrs
 	mesh.Indicies = indicies
-	gl33.GenVertexArrays(1, &mesh.vao)
-	gl33.BindVertexArray(mesh.vao)
+	GL <- func() {
+		gl33.GenVertexArrays(1, &mesh.vao)
+		gl33.BindVertexArray(mesh.vao)
+	}
 	attrsValue := reflect.ValueOf(attrs)
 	mesh.vertexBO = NewBuffer(gl33.ARRAY_BUFFER, gl33.STATIC_DRAW, attrs)
 	vertexSpec := attrsValue.Type().Elem()
@@ -63,11 +65,13 @@ func NewMesh(attrs interface{}, indicies []uint32) *Mesh {
 }
 
 func setupAttrib(location gl33.Uint, type_ gl33.Enum, dimensions int, offset uintptr, vertexSize int) {
-	gl33.EnableVertexAttribArray(location)
-	if type_ == gl33.FLOAT || type_ == gl33.DOUBLE {
-		gl33.VertexAttribPointer(location, gl33.Int(dimensions), type_, gl33.FALSE, gl33.Sizei(vertexSize), gl33.Pointer(offset))
-	} else {
-		gl33.VertexAttribIPointer(location, gl33.Int(dimensions), type_, gl33.Sizei(vertexSize), gl33.Pointer(offset))
+	GL <- func() {
+		gl33.EnableVertexAttribArray(location)
+		if type_ == gl33.FLOAT || type_ == gl33.DOUBLE {
+			gl33.VertexAttribPointer(location, gl33.Int(dimensions), type_, gl33.FALSE, gl33.Sizei(vertexSize), gl33.Pointer(offset))
+		} else {
+			gl33.VertexAttribIPointer(location, gl33.Int(dimensions), type_, gl33.Sizei(vertexSize), gl33.Pointer(offset))
+		}
 	}
 }
 
@@ -94,12 +98,16 @@ func glType(data reflect.Kind) gl33.Enum {
 }
 
 func (mesh *Mesh) Delete() {
-	gl33.DeleteVertexArrays(1, &mesh.vao)
-	mesh.vertexBO.Delete()
-	mesh.indexBO.Delete()
+	GL <- func() {
+		gl33.DeleteVertexArrays(1, &mesh.vao)
+		mesh.vertexBO.Delete()
+		mesh.indexBO.Delete()
+	}
 }
 
 func (mesh *Mesh) Render() {
-	gl33.BindVertexArray(mesh.vao)
-	gl33.DrawElements(gl33.TRIANGLES, gl33.Sizei(len(mesh.Indicies)), gl33.UNSIGNED_INT, gl33.Pointer(uintptr(0)))
+	GL <- func() {
+		gl33.BindVertexArray(mesh.vao)
+		gl33.DrawElements(gl33.TRIANGLES, gl33.Sizei(len(mesh.Indicies)), gl33.UNSIGNED_INT, gl33.Pointer(uintptr(0)))
+	}
 }

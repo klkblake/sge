@@ -42,7 +42,9 @@ func update(node Node, deltaNs int64) {
 }
 
 func (world *World) Render(view *View) {
-	gl33.Clear(gl33.COLOR_BUFFER_BIT | gl33.DEPTH_BUFFER_BIT)
+	GL <- func() {
+		gl33.Clear(gl33.COLOR_BUFFER_BIT | gl33.DEPTH_BUFFER_BIT)
+	}
 	vpMatrix := view.PerspectiveMatrix.Mul(view.ViewMatrix)
 	render(world.Root, view, vpMatrix, world.matrixStack, PassOpaque, true)
 	if world.Skybox != nil {
@@ -52,7 +54,9 @@ func (world *World) Render(view *View) {
 	vpMatrix = view.OrthographicMatrix
 	render(world.Gui, view, vpMatrix, world.matrixStack, PassOpaque, false)
 	render(world.Gui, view, vpMatrix, world.matrixStack, PassTranslucent, false)
-	sdl.GL_SwapBuffers()
+	GL <- func() {
+		sdl.GL_SwapBuffers()
+	}
 }
 
 func render(node Node, view *View, vpMatrix *s3dm.Mat4, matrixStack *Mat4Stack, pass int, frustumCull bool) {

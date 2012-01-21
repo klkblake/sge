@@ -9,8 +9,10 @@ import (
 )
 
 func PanicOnError() {
-	err := gl33.GetError()
-	if err != 0 {
-		panic("OpenGL error occured. Error code: " + strconv.Itoa(int(err)))
+	GL <- func() {
+		err := gl33.GetError()
+		if err != 0 {
+			panic("OpenGL error occured. Error code: " + strconv.Itoa(int(err)))
+		}
 	}
 }
