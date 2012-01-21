@@ -16,6 +16,7 @@ GOFILES=\
 	skybox.go\
 	renderer.go\
 	mat4stack.go\
+	glthread.go\
 	error.go\
 
 include $(GOROOT)/src/Make.pkg
