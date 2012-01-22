@@ -30,7 +30,6 @@ func main() {
 	cameraChanged := false
 	cameraRotated := false
 	last := time.Now()
-	rendered := make(chan bool, 1)
 mainloop:
 	for {
 		select {
@@ -97,10 +96,7 @@ mainloop:
 			}
 			world.Update(delta.Nanoseconds())
 			world.Render(view)
-			sge.GL <- func() {
-				rendered <- true
-			}
-			<-rendered
+			sge.FlushGL()
 		case event := <-sdl.Events:
 			switch event.(type) {
 			case sdl.QuitEvent:

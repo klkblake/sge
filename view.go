@@ -22,7 +22,6 @@ type View struct {
 
 func NewView(title string, width int, height int, near float64, far float64) *View {
 	view := new(View)
-	done := make(chan bool, 1)
 	GL <- func() {
 		if sdl.Init(sdl.INIT_VIDEO) < 0 {
 			panic(sdl.GetError())
@@ -44,7 +43,6 @@ func NewView(title string, width int, height int, near float64, far float64) *Vi
 		gl33.ClearColor(1.0, 1.0, 1.0, 1.0)
 		gl33.BlendFunc(gl33.SRC_ALPHA, gl33.ONE_MINUS_SRC_ALPHA)
 		gl33.Viewport(0, 0, gl33.Sizei(width), gl33.Sizei(height))
-		done <- true
 	}
 	fovy := math.Pi / 4
 	aspect := float64(width) / float64(height)
@@ -54,7 +52,7 @@ func NewView(title string, width int, height int, near float64, far float64) *Vi
 	view.Height = height
 	view.PerspectiveMatrix = s3dm.NewPerspectiveMat4(fovy, aspect, near, far)
 	view.OrthographicMatrix = s3dm.NewOrthographicMat4(float64(width), float64(height), 0, 1)
-	<-done
+	FlushGL()
 	return view
 }
 
