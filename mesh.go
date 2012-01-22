@@ -100,9 +100,9 @@ func glType(data reflect.Kind) gl33.Enum {
 func (mesh *Mesh) Delete() {
 	GL <- func() {
 		gl33.DeleteVertexArrays(1, &mesh.vao)
-		mesh.vertexBO.Delete()
-		mesh.indexBO.Delete()
 	}
+	mesh.vertexBO.Delete()
+	mesh.indexBO.Delete()
 }
 
 func (mesh *Mesh) Render() {
