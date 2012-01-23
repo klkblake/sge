@@ -42,6 +42,7 @@ func NewView(title string, width int, height int, near float64, far float64) *Vi
 		gl33.Enable(gl33.DEPTH_TEST)
 		gl33.ClearColor(1.0, 1.0, 1.0, 1.0)
 		gl33.BlendFunc(gl33.SRC_ALPHA, gl33.ONE_MINUS_SRC_ALPHA)
+		gl33.DepthFunc(gl33.LEQUAL)
 		gl33.Viewport(0, 0, gl33.Sizei(width), gl33.Sizei(height))
 	}
 	fovy := math.Pi / 4
