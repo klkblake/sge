@@ -77,6 +77,8 @@ func (view *View) Update() {
 }
 
 func (view *View) Close() error {
-	sdl.Quit()
+	GL <- func() {
+		sdl.Quit()
+	}
 	return nil
 }
