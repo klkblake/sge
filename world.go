@@ -32,6 +32,7 @@ func NewWorld() *World {
 
 func (world *World) Update(deltaNs int64) {
 	update(world.Root, deltaNs)
+	update(world.Gui, deltaNs)
 }
 
 func update(node Node, deltaNs int64) {
