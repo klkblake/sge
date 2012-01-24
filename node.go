@@ -70,7 +70,11 @@ func (node *BasicNode) Add(child Node) {
 func (node *BasicNode) Remove(child Node) {
 	for i, n := range node.children {
 		if n == child {
-			node.children = append(node.children[:i], node.children[i+1:]...)
+			if i < len(node.children) - 2 {
+				node.children = append(node.children[:i], node.children[i+1:]...)
+			} else {
+				node.children = node.children[:i]
+			}
 		}
 	}
 }
