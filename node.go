@@ -14,7 +14,7 @@ type Node interface {
 	Add(child Node)
 	Remove(child Node)
 	UpdateAABB()
-	Update(deltaNs int64)
+	Update(delta float64)
 	Render(view *View, mvpMatrix *s3dm.Mat4, pass int)
 }
 
@@ -105,5 +105,5 @@ func (node *BasicNode) UpdateAABB() {
 	}
 }
 
-func (node *BasicNode) Update(deltaNs int64)                              {}
+func (node *BasicNode) Update(delta float64)                              {}
 func (node *BasicNode) Render(view *View, mvpMatrix *s3dm.Mat4, pass int) {}

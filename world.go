@@ -30,15 +30,15 @@ func NewWorld() *World {
 	return world
 }
 
-func (world *World) Update(deltaNs int64) {
-	update(world.Root, deltaNs)
-	update(world.Gui, deltaNs)
+func (world *World) Update(delta float64) {
+	update(world.Root, delta)
+	update(world.Gui, delta)
 }
 
-func update(node Node, deltaNs int64) {
-	node.Update(deltaNs)
+func update(node Node, delta float64) {
+	node.Update(delta)
 	for _, child := range node.Children() {
-		update(child, deltaNs)
+		update(child, delta)
 	}
 }
 
