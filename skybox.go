@@ -78,7 +78,7 @@ func (skybox *Skybox) Render(view *View, mvpMatrix *s3dm.Mat4, pass int) {
 		skybox.CubeMap.Bind(0)
 	}
 	skybox.Shader.Use()
-	pos := view.Camera.Position()
+	pos := view.Camera.Position
 	skybox.translateMatrix[12] = pos.X
 	skybox.translateMatrix[13] = pos.Y
 	skybox.translateMatrix[14] = pos.Z
