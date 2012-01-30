@@ -6,7 +6,7 @@ import "s3dm"
 
 type Node interface {
 	Xform() *s3dm.Xform
-	AABB() *s3dm.AABB
+	AABB() s3dm.AABB
 	Parent() Node
 	Children() []Node
 	Passes() int
@@ -20,7 +20,7 @@ type Node interface {
 
 type BasicNode struct {
 	xform    *s3dm.Xform
-	aabb     *s3dm.AABB
+	aabb     s3dm.AABB
 	parent   Node
 	children []Node
 	passes   int
@@ -29,7 +29,6 @@ type BasicNode struct {
 func NewBasicNode(parent Node) *BasicNode {
 	node := new(BasicNode)
 	node.xform = s3dm.NewXform()
-	node.aabb = s3dm.NewAABB(s3dm.NewV3(0, 0, 0), s3dm.NewV3(0, 0, 0))
 	node.parent = parent
 	node.children = make([]Node, 0)
 	return node
@@ -39,7 +38,7 @@ func (node *BasicNode) Xform() *s3dm.Xform {
 	return node.xform
 }
 
-func (node *BasicNode) AABB() *s3dm.AABB {
+func (node *BasicNode) AABB() s3dm.AABB {
 	return node.aabb
 }
 
@@ -81,12 +80,12 @@ func (node *BasicNode) Remove(child Node) {
 
 func (node *BasicNode) UpdateAABB() {
 	if len(node.children) == 0 {
-		node.aabb.Min = s3dm.NewV3(0, 0, 0)
-		node.aabb.Max = s3dm.NewV3(0, 0, 0)
+		node.aabb.Min = s3dm.V3{}
+		node.aabb.Max = s3dm.V3{}
 	} else {
 		pos := node.children[0].Xform().Position()
-		min := pos.Add(node.children[0].AABB().Min.Copy())
-		max := pos.Add(node.children[0].AABB().Max.Copy())
+		min := pos.Add(node.children[0].AABB().Min)
+		max := pos.Add(node.children[0].AABB().Max)
 		for i := 1; i < len(node.children); i++ {
 			child := node.children[i].AABB()
 			pos = node.children[i].Xform().Position()

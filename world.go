@@ -64,8 +64,12 @@ func render(node Node, view *View, vpMatrix *s3dm.Mat4, matrixStack *Mat4Stack, 
 	modelMatrix := s3dm.Mat4(node.Xform().GetMatrix4())
 	matrixStack.Push(&modelMatrix)
 	defer matrixStack.Pop()
-	if frustumCull && view.Camera.IntersectsAABB(node.AABB().MoveGlobal(matrixStack.Top().Position())) < 0 {
-		return
+	if frustumCull {
+		aabb := node.AABB()
+		aabb.MoveGlobal(matrixStack.Top().Position())
+		if view.Camera.IntersectsAABB(aabb) < 0 {
+			return
+		}
 	}
 	if pass&node.Passes() != 0 {
 		node.Render(view, vpMatrix.Mul(matrixStack.Top()), pass)
