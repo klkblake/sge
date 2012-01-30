@@ -42,6 +42,10 @@ func (node *BasicNode) AABB() s3dm.AABB {
 	return node.aabb
 }
 
+func (node *BasicNode) SetAABB(aabb s3dm.AABB) {
+	node.aabb = aabb
+}
+
 func (node *BasicNode) Parent() Node {
 	return node.parent
 }
