@@ -5,7 +5,7 @@ import (
 )
 
 import (
-	"s3dm"
+	"github.com/klkblake/s3dm"
 )
 
 type Skybox struct {

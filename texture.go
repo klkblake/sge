@@ -5,7 +5,7 @@ import (
 )
 
 import (
-	"atom/sdl"
+	"github.com/klkblake/Go-SDL/sdl"
 	"github.com/chsc/gogl/gl33"
 )
 

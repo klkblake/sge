@@ -2,7 +2,7 @@ package sge
 
 import "math"
 
-import "s3dm"
+import "github.com/klkblake/s3dm"
 
 type Node interface {
 	Xform() *s3dm.Xform

@@ -1,9 +1,9 @@
 package sge
 
 import (
-	"atom/sdl"
+	"github.com/klkblake/Go-SDL/sdl"
 	"github.com/chsc/gogl/gl33"
-	"s3dm"
+	"github.com/klkblake/s3dm"
 )
 
 const (

@@ -5,9 +5,9 @@ import (
 )
 
 import (
-	"atom/sdl"
+	"github.com/klkblake/Go-SDL/sdl"
 	"github.com/chsc/gogl/gl33"
-	"s3dm"
+	"github.com/klkblake/s3dm"
 )
 
 type View struct {
@@ -55,6 +55,12 @@ func NewView(title string, width int, height int, near float64, far float64) *Vi
 	view.OrthographicMatrix = s3dm.NewOrthographicMat4(float64(width), float64(height), 0, 1)
 	FlushGL()
 	return view
+}
+
+func (view *View) SetFovy(fovy float64) {
+	view.Camera.Fovy = fovy
+	view.PerspectiveMatrix = s3dm.NewPerspectiveMat4(fovy, view.Camera.Aspect, view.Camera.Near, view.Camera.Far)
+	view.Update()
 }
 
 func (view *View) SetBackgroundColor(red, green, blue float32) {

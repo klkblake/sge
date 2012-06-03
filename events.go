@@ -1,7 +1,7 @@
 package sge
 
 import (
-	"atom/sdl"
+	"github.com/klkblake/Go-SDL/sdl"
 )
 
 type KeyPresser interface {

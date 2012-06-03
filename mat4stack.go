@@ -1,7 +1,7 @@
 package sge
 
 import (
-	"s3dm"
+	"github.com/klkblake/s3dm"
 )
 
 type Mat4Stack struct {
