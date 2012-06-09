@@ -61,6 +61,9 @@ func (world *World) Render(view *View) {
 }
 
 func render(node Node, view *View, vpMatrix *s3dm.Mat4, matrixStack *Mat4Stack, pass int, frustumCull bool) {
+	if pass&node.Passes() == 0 && len(node.Children()) == 0 {
+		return
+	}
 	modelMatrix := s3dm.Mat4(node.Xform().GetMatrix4())
 	matrixStack.Push(&modelMatrix)
 	defer matrixStack.Pop()
