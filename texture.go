@@ -5,8 +5,8 @@ import (
 )
 
 import (
-	"github.com/klkblake/Go-SDL/sdl"
 	"github.com/chsc/gogl/gl33"
+	"github.com/klkblake/Go-SDL/sdl"
 )
 
 var activeTexture int
