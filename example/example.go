@@ -1,10 +1,14 @@
 package main
 
-import "time"
+import (
+	"time"
+)
 
-import "sge"
-import "s3dm"
-import "atom/sdl"
+import (
+	"github.com/klkblake/Go-SDL/sdl"
+	"github.com/klkblake/s3dm"
+	"github.com/klkblake/sge"
+)
 
 func main() {
 	assets := sge.NewAssets()
@@ -25,76 +29,59 @@ func main() {
 	view.SetBackgroundColor(0.25, 0.5, 0.75)
 	ticker := time.Tick(time.Second / 60)
 	keystate := sdl.GetKeyState()
-	yaw := float64(0)
-	pitch := float64(0)
 	cameraChanged := false
 	cameraRotated := false
 	last := time.Now()
 mainloop:
 	for {
+		yaw := float64(0)
+		pitch := float64(0)
 		select {
 		case t := <-ticker:
 			delta := t.Sub(last)
 			last = t
 			if keystate[sdl.K_UP] == 1 {
-				pitch += 3
-				if pitch > 90 {
-					pitch = 90
-				}
-				cameraChanged = true
+				pitch = 0.05
 				cameraRotated = true
 			}
 			if keystate[sdl.K_DOWN] == 1 {
-				pitch -= 3
-				if pitch < -90 {
-					pitch = -90
-				}
-				cameraChanged = true
+				pitch = -0.05
 				cameraRotated = true
 			}
 			if keystate[sdl.K_LEFT] == 1 {
-				yaw += 3
-				if yaw > 360 {
-					yaw -= 360
-				}
-				cameraChanged = true
+				yaw = 0.05
 				cameraRotated = true
 			}
 			if keystate[sdl.K_RIGHT] == 1 {
-				yaw -= 3
-				if yaw < 0 {
-					yaw += 360
-				}
-				cameraChanged = true
+				yaw = -0.05
 				cameraRotated = true
 			}
 			if keystate[sdl.K_w] == 1 {
-				view.Camera.MoveLocal(s3dm.NewV3(0, 0, -0.01))
+				view.Camera.Position.Z -= 0.01
 				cameraChanged = true
 			}
 			if keystate[sdl.K_s] == 1 {
-				view.Camera.MoveLocal(s3dm.NewV3(0, 0, 0.01))
+				view.Camera.Position.Z += 0.01
 				cameraChanged = true
 			}
 			if keystate[sdl.K_a] == 1 {
-				view.Camera.MoveLocal(s3dm.NewV3(-0.01, 0, 0))
+				view.Camera.Position.X -= 0.01
 				cameraChanged = true
 			}
 			if keystate[sdl.K_d] == 1 {
-				view.Camera.MoveLocal(s3dm.NewV3(0.01, 0, 0))
+				view.Camera.Position.X += 0.01
 				cameraChanged = true
 			}
 			if cameraRotated {
 				cameraRotated = false
-				view.Camera.SetIdentity()
-				view.Camera.RotateGlobal(yaw, s3dm.NewV3(0, 1, 0))
-				view.Camera.RotateGlobal(pitch, s3dm.NewV3(1, 0, 0))
+				cameraChanged = true
+				view.Camera.Rotation = s3dm.AxisAngle(s3dm.V3{0, 1, 0}, yaw).Mul(view.Camera.Rotation).Mul(s3dm.AxisAngle(s3dm.V3{1, 0, 0}, pitch))
 			}
 			if cameraChanged {
 				cameraChanged = false
 				view.Update()
 			}
-			world.Update(delta.Nanoseconds())
+			world.Update(delta.Seconds())
 			world.Render(view)
 			sge.FlushGL()
 		case event := <-sdl.Events:
