@@ -15,9 +15,9 @@ type View struct {
 	Camera             *s3dm.Frustum
 	Width              int
 	Height             int
-	PerspectiveMatrix  *s3dm.Mat4
-	OrthographicMatrix *s3dm.Mat4
-	ViewMatrix         *s3dm.Mat4
+	PerspectiveMatrix  s3dm.Mat4
+	OrthographicMatrix s3dm.Mat4
+	ViewMatrix         s3dm.Mat4
 }
 
 func NewView(title string, width int, height int, near float64, far float64) *View {
@@ -51,15 +51,15 @@ func NewView(title string, width int, height int, near float64, far float64) *Vi
 	view.Update()
 	view.Width = width
 	view.Height = height
-	view.PerspectiveMatrix = s3dm.NewPerspectiveMat4(fovy, aspect, near, far)
-	view.OrthographicMatrix = s3dm.NewOrthographicMat4(float64(width), float64(height), 0, 1)
+	view.PerspectiveMatrix = s3dm.PerspectiveMatrix(fovy, aspect, near, far)
+	view.OrthographicMatrix = s3dm.OrthographicMatrix(float64(width), float64(height), 0, 1)
 	FlushGL()
 	return view
 }
 
 func (view *View) SetFovy(fovy float64) {
 	view.Camera.Fovy = fovy
-	view.PerspectiveMatrix = s3dm.NewPerspectiveMat4(fovy, view.Camera.Aspect, view.Camera.Near, view.Camera.Far)
+	view.PerspectiveMatrix = s3dm.PerspectiveMatrix(fovy, view.Camera.Aspect, view.Camera.Near, view.Camera.Far)
 	view.Update()
 }
 
@@ -71,9 +71,9 @@ func (view *View) SetBackgroundColor(red, green, blue float32) {
 
 func (view *View) Update() {
 	view.Camera.Update()
-	m := view.Camera.GetMatrix4()
+	m := view.Camera.Matrix()
 	// Take the inverse of the camera matrix
-	view.ViewMatrix = &s3dm.Mat4{
+	view.ViewMatrix = s3dm.Mat4{
 		m[0], m[4], m[8], 0,
 		m[1], m[5], m[9], 0,
 		m[2], m[6], m[10], 0,

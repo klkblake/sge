@@ -9,25 +9,21 @@ import (
 )
 
 type Skybox struct {
+	s3dm.Xform
 	CubeMap         *Texture
 	Shader          *Program
-	scaleMatrix     *s3dm.Mat4
-	translateMatrix *s3dm.Mat4
+	cachedMatrix    s3dm.Mat4
 	mesh            *Mesh
 }
 
 func NewSkybox(cubeMap *Texture, shader *Program, far float64) *Skybox {
 	skybox := new(Skybox)
+	scale := far / math.Sqrt(3)
+	skybox.Xform = s3dm.XformIdentity
+	skybox.Xform.Scale = s3dm.V3{scale, scale, scale}
+	skybox.cachedMatrix = skybox.Matrix()
 	skybox.CubeMap = cubeMap
 	skybox.Shader = shader
-	scale := far / math.Sqrt(3)
-	skybox.scaleMatrix = &s3dm.Mat4{
-		scale, 0, 0, 0,
-		0, scale, 0, 0,
-		0, 0, scale, 0,
-		0, 0, 0, 1,
-	}
-	skybox.translateMatrix = s3dm.NewMat4()
 	type skyboxVertex [2][3]float32
 	verticies := []skyboxVertex{
 		// Positive X
@@ -79,10 +75,11 @@ func (skybox *Skybox) Render(view *View, mvpMatrix *s3dm.Mat4, pass int) {
 	}
 	skybox.Shader.Use()
 	pos := view.Camera.Position
-	skybox.translateMatrix[12] = pos.X
-	skybox.translateMatrix[13] = pos.Y
-	skybox.translateMatrix[14] = pos.Z
-	matrix := mvpMatrix.Mul(skybox.translateMatrix).Mul(skybox.scaleMatrix).GetFloat32Matrix()
+	if !pos.Equals(skybox.Position) {
+		skybox.Position = pos
+		skybox.cachedMatrix = skybox.Matrix()
+	}
+	matrix := mvpMatrix.Mul(skybox.cachedMatrix).RawMatrix32()
 	skybox.Shader.SetUniformMatrix("mvpMatrix", matrix[:], 4)
 	if skybox.CubeMap != nil {
 		skybox.Shader.SetUniform("textureUnit", 0)

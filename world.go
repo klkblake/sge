@@ -3,7 +3,6 @@ package sge
 import (
 	"github.com/chsc/gogl/gl33"
 	"github.com/klkblake/Go-SDL/sdl"
-	"github.com/klkblake/s3dm"
 )
 
 const (
@@ -44,11 +43,11 @@ func (world *World) Render(view *View) {
 		if pass&leaf.Passes() == 0 {
 			return
 		}
-		modelMatrix := s3dm.Mat4(leaf.XformNode().WorldXform.GetMatrix4())
-		mvpMatrix := vpMatrix.Mul(&modelMatrix)
+		modelMatrix := leaf.XformNode().WorldMatrix
+		mvpMatrix := vpMatrix.Mul(modelMatrix)
 		if frustumCull {
-			aabb := leaf.AABB().MoveGlobal(modelMatrix.Position())
-			if view.Camera.IntersectsAABB(aabb) < 0 {
+			aabb := leaf.AABB().MoveGlobal(leaf.XformNode().WorldXform.Position)
+			if aabb.IntersectsFrustum(view.Camera) < 0 {
 				return
 			}
 		}

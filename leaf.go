@@ -25,7 +25,7 @@ func (leaf *BasicLeaf) Link(self Leaf) {
 }
 
 func (leaf *BasicLeaf) Xform() *s3dm.Xform {
-	return leaf.xformNode.Xform
+	return &leaf.xformNode.Xform
 }
 
 func (leaf *BasicLeaf) Passes() int {
@@ -41,4 +41,4 @@ func (leaf *BasicLeaf) XformNode() *XformNode {
 }
 
 func (leaf *BasicLeaf) Update(delta float64)                              {}
-func (leaf *BasicLeaf) Render(view *View, mvpMatrix *s3dm.Mat4, pass int) {}
+func (leaf *BasicLeaf) Render(view *View, mvpMatrix s3dm.Mat4, pass int) {}
