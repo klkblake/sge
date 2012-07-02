@@ -69,7 +69,7 @@ func NewSkybox(cubeMap *Texture, shader *Program, far float64) *Skybox {
 	return skybox
 }
 
-func (skybox *Skybox) Render(view *View, mvpMatrix *s3dm.Mat4, pass int) {
+func (skybox *Skybox) Render(view *View, mvpMatrix s3dm.Mat4, pass int) {
 	if skybox.CubeMap != nil {
 		skybox.CubeMap.Bind(0)
 	}
