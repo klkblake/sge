@@ -12,7 +12,7 @@ const (
 
 type World struct {
 	Root   *XformNode
-	Skybox Renderer
+	Skybox Leaf
 	Gui    *XformNode
 }
 
@@ -28,6 +28,7 @@ func (world *World) Update(delta float64) {
 		leaf.Update(delta)
 	}
 	world.Root.Walk(f)
+	world.Skybox.Update(delta)
 	world.Gui.Walk(f)
 }
 

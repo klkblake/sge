@@ -9,7 +9,7 @@ import (
 )
 
 type Skybox struct {
-	s3dm.Xform
+	*BasicLeaf
 	CubeMap         *Texture
 	Shader          *Program
 	cachedMatrix    s3dm.Mat4
@@ -20,10 +20,12 @@ type Skybox struct {
 
 func NewSkybox(cubeMap *Texture, shader *Program, far float64) *Skybox {
 	skybox := new(Skybox)
+	skybox.BasicLeaf = NewBasicLeaf()
+	skybox.Link(skybox)
 	scale := far / math.Sqrt(3)
-	skybox.Xform = s3dm.XformIdentity
-	skybox.Xform.Scale = s3dm.V3{scale, scale, scale}
-	skybox.cachedMatrix = skybox.Matrix()
+	*skybox.Xform() = s3dm.XformIdentity
+	skybox.Xform().Scale = s3dm.V3{scale, scale, scale}
+	skybox.cachedMatrix = skybox.Xform().Matrix()
 	skybox.CubeMap = cubeMap
 	skybox.Shader = shader
 	skybox.mvpMatrix = shader.Uniform("mvpMatrix")
@@ -79,9 +81,9 @@ func (skybox *Skybox) Render(view *View, mvpMatrix s3dm.Mat4, pass int) {
 	}
 	skybox.Shader.Use()
 	pos := view.Camera.Position
-	if !pos.Equals(skybox.Position) {
-		skybox.Position = pos
-		skybox.cachedMatrix = skybox.Matrix()
+	if !pos.Equals(skybox.Xform().Position) {
+		skybox.Xform().Position = pos
+		skybox.cachedMatrix = skybox.Xform().Matrix()
 	}
 	matrix := mvpMatrix.Mul(skybox.cachedMatrix).RawMatrix32()
 	skybox.mvpMatrix.SetMatrix(matrix[:], 4)

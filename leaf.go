@@ -7,7 +7,7 @@ type Leaf interface {
 	Update(delta float64)
 	Passes() int
 	AABB() s3dm.AABB
-	Renderer
+	Render(view *View, mvpMatrix s3dm.Mat4, pass int)
 	XformNode() *XformNode
 }
 
