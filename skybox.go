@@ -80,7 +80,7 @@ func (skybox *Skybox) Render(view *View, mvpMatrix s3dm.Mat4, pass int) {
 		skybox.CubeMap.Bind(0)
 	}
 	skybox.Shader.Use()
-	pos := view.Camera.Position
+	pos := view.Position
 	if !pos.Equals(skybox.Xform().Position) {
 		skybox.Xform().Position = pos
 		skybox.cachedMatrix = skybox.Xform().Matrix()
