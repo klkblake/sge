@@ -8,5 +8,5 @@ It should be fairly straightforward.
 Libraries:
 ---------
 gogl: https://github.com/chsc/gogl/gl33
-Go-SDL: https://github.com/0xe2-0x9a-0x9b/Go-SDL
-s3dm: https://github.com/klkblake/s3dm-go
+Go-SDL: https://github.com/klkblake/Go-SDL
+s3dm: https://github.com/klkblake/s3dm
