@@ -24,36 +24,31 @@ type Texture struct {
 
 func NewTexture2D() *Texture {
 	tex := new(Texture)
-	GL <- func() {
-		gl33.GenTextures(1, &tex.Id)
-	}
+	gl33.GenTextures(1, &tex.Id)
 	tex.Type = gl33.TEXTURE_2D
 	return tex
 }
 
 func NewTextureArray() *Texture {
 	tex := new(Texture)
-	GL <- func() {
-		gl33.GenTextures(1, &tex.Id)
-	}
+	gl33.GenTextures(1, &tex.Id)
 	tex.Type = gl33.TEXTURE_2D_ARRAY
 	return tex
 }
 
 func NewTextureCubeMap() *Texture {
 	tex := new(Texture)
-	GL <- func() {
-		gl33.GenTextures(1, &tex.Id)
-	}
+	gl33.GenTextures(1, &tex.Id)
 	tex.Type = gl33.TEXTURE_CUBE_MAP
 	return tex
 }
 
 func LoadTexture2D(filename string, minFilter int, magFilter int) *Texture {
-	tex := NewTexture2D()
-	tex.SetFilters(minFilter, magFilter)
-	tex.Bind(0)
+	ch := make(chan *Texture)
 	GL <- func() {
+		tex := NewTexture2D()
+		tex.SetFilters(minFilter, magFilter)
+		tex.Bind(0)
 		surface := sdl.Load(filename)
 		if surface == nil {
 			panic(sdl.GetError())
@@ -63,15 +58,17 @@ func LoadTexture2D(filename string, minFilter int, magFilter int) *Texture {
 		tex.Height = int(surface.H)
 		uploadSurface(gl33.TEXTURE_2D, surface)
 		gl33.GenerateMipmap(gl33.TEXTURE_2D)
+		ch <- tex
 	}
-	return tex
+	return <-ch
 }
 
 func LoadTextureArray(filenames []string, minFilter int, magFilter int) *Texture {
-	tex := NewTextureArray()
-	tex.SetFilters(minFilter, magFilter)
-	tex.Bind(0)
+	ch := make(chan *Texture)
 	GL <- func() {
+		tex := NewTextureArray()
+		tex.SetFilters(minFilter, magFilter)
+		tex.Bind(0)
 		surfaces := make([]*sdl.Surface, len(filenames))
 		for i, filename := range filenames {
 			surfaces[i] = sdl.Load(filename)
@@ -103,15 +100,17 @@ func LoadTextureArray(filenames []string, minFilter int, magFilter int) *Texture
 		}
 		gl33.TexImage3D(gl33.TEXTURE_2D_ARRAY, 0, internalFormat, gl33.Sizei(tex.Width), gl33.Sizei(tex.Height), gl33.Sizei(len(surfaces)), 0, format, gl33.UNSIGNED_BYTE, gl33.Pointer(&pixels[0]))
 		gl33.GenerateMipmap(gl33.TEXTURE_2D_ARRAY)
+		ch <- tex
 	}
-	return tex
+	return <-ch
 }
 
 func LoadTextureCubeMap(filenames *[6]string, minFilter int, magFilter int) *Texture {
-	tex := NewTextureCubeMap()
-	tex.SetFilters(minFilter, magFilter)
-	tex.Bind(0)
+	ch := make(chan *Texture)
 	GL <- func() {
+		tex := NewTextureCubeMap()
+		tex.SetFilters(minFilter, magFilter)
+		tex.Bind(0)
 		var surfaces [6]*sdl.Surface
 		for i, filename := range filenames {
 			surfaces[i] = sdl.Load(filename)
@@ -129,8 +128,9 @@ func LoadTextureCubeMap(filenames *[6]string, minFilter int, magFilter int) *Tex
 		uploadSurface(gl33.TEXTURE_CUBE_MAP_POSITIVE_Z, surfaces[4])
 		uploadSurface(gl33.TEXTURE_CUBE_MAP_NEGATIVE_Z, surfaces[5])
 		gl33.GenerateMipmap(gl33.TEXTURE_CUBE_MAP)
+		ch <- tex
 	}
-	return tex
+	return <-ch
 }
 
 func uploadSurface(target gl33.Enum, surface *sdl.Surface) {
@@ -177,16 +177,12 @@ func (tex *Texture) bound() **Texture {
 
 func (tex *Texture) Bind(textureUnit int) {
 	if activeTexture != textureUnit {
-		GL <- func() {
-			gl33.ActiveTexture(gl33.Enum(gl33.TEXTURE0 + textureUnit))
-		}
+		gl33.ActiveTexture(gl33.Enum(gl33.TEXTURE0 + textureUnit))
 		activeTexture = textureUnit
 	}
 	bound := tex.bound()
 	if *bound != tex {
-		GL <- func() {
-			gl33.BindTexture(tex.Type, tex.Id)
-		}
+		gl33.BindTexture(tex.Type, tex.Id)
 		*bound = tex
 	}
 }
@@ -194,23 +190,17 @@ func (tex *Texture) Bind(textureUnit int) {
 func (tex *Texture) Unbind() {
 	bound := tex.bound()
 	if *bound == tex {
-		GL <- func() {
-			gl33.BindTexture(tex.Type, 0)
-		}
+		gl33.BindTexture(tex.Type, 0)
 		*bound = nil
 	}
 }
 
 func (tex *Texture) Delete() {
-	GL <- func() {
-		gl33.DeleteTextures(1, &tex.Id)
-	}
+	gl33.DeleteTextures(1, &tex.Id)
 }
 
 func (tex *Texture) SetFilters(minFilter int, magFilter int) {
 	tex.Bind(0)
-	GL <- func() {
-		gl33.TexParameteri(tex.Type, gl33.TEXTURE_MIN_FILTER, gl33.Int(minFilter))
-		gl33.TexParameteri(tex.Type, gl33.TEXTURE_MAG_FILTER, gl33.Int(magFilter))
-	}
+	gl33.TexParameteri(tex.Type, gl33.TEXTURE_MIN_FILTER, gl33.Int(minFilter))
+	gl33.TexParameteri(tex.Type, gl33.TEXTURE_MAG_FILTER, gl33.Int(magFilter))
 }

@@ -12,9 +12,7 @@ type TextureBuffer struct {
 func NewTextureBuffer(data interface{}) *TextureBuffer {
 	texbuf := new(TextureBuffer)
 	texbuf.Texture = new(Texture)
-	GL <- func() {
-		gl33.GenTextures(1, &texbuf.Texture.Id)
-	}
+	gl33.GenTextures(1, &texbuf.Texture.Id)
 	texbuf.Texture.Type = gl33.TEXTURE_BUFFER
 	texbuf.Buffer = NewBuffer(gl33.TEXTURE_BUFFER, gl33.DYNAMIC_DRAW, data)
 	texbuf.Width = texbuf.Buffer.Value.Len()
@@ -34,9 +32,7 @@ func NewTextureBuffer(data interface{}) *TextureBuffer {
 		format = gl33.RGBA16
 	}
 	texbuf.Bind(0)
-	GL <- func() {
-		gl33.TexBuffer(gl33.TEXTURE_BUFFER, format, texbuf.Buffer.Id)
-	}
+	gl33.TexBuffer(gl33.TEXTURE_BUFFER, format, texbuf.Buffer.Id)
 	return texbuf
 }
 

@@ -40,11 +40,9 @@ type Shader struct {
 
 func NewShader(type_ gl33.Enum) *Shader {
 	shader := new(Shader)
-	GL <- func() {
-		shader.Id = gl33.CreateShader(type_)
-		if shader.Id == 0 {
-			panic(gl33.GetError())
-		}
+	shader.Id = gl33.CreateShader(type_)
+	if shader.Id == 0 {
+		panic(gl33.GetError())
 	}
 	return shader
 }
@@ -62,10 +60,14 @@ func LoadShader(filename string, type_ gl33.Enum) *Shader {
 	if err != nil {
 		panic(err)
 	}
-	shader := NewShader(type_)
-	shader.Source(string(data))
-	shader.Compile()
-	return shader
+	ch := make(chan *Shader)
+	GL <- func() {
+		shader := NewShader(type_)
+		shader.Source(string(data))
+		shader.Compile()
+		ch <- shader
+	}
+	return <-ch
 }
 
 func LoadVertexShader(filename string) *Shader {
@@ -77,70 +79,62 @@ func LoadFragmentShader(filename string) *Shader {
 }
 
 func DefaultVertexShader() *Shader {
-	shader := NewVertexShader()
-	shader.Source(defaultVertexSource)
-	shader.Compile()
-	return shader
+	ch := make(chan *Shader)
+	GL <- func() {
+		shader := NewVertexShader()
+		shader.Source(defaultVertexSource)
+		shader.Compile()
+		ch <- shader
+	}
+	return <-ch
 }
 
 func DefaultFragmentShader() *Shader {
-	shader := NewFragmentShader()
-	shader.Source(defaultFragmentSource)
-	shader.Compile()
-	return shader
+	ch := make(chan *Shader)
+	GL <- func() {
+		shader := NewFragmentShader()
+		shader.Source(defaultFragmentSource)
+		shader.Compile()
+		ch <- shader
+	}
+	return <-ch
 }
 
 func DefaultCubeFragmentShader() *Shader {
-	shader := NewFragmentShader()
-	shader.Source(defaultCubeFragmentSource)
-	shader.Compile()
-	return shader
+	ch := make(chan *Shader)
+	GL <- func() {
+		shader := NewFragmentShader()
+		shader.Source(defaultCubeFragmentSource)
+		shader.Compile()
+		ch <- shader
+	}
+	return <-ch
 }
 
-func (shader *Shader) get(param gl33.Enum) int {
+func (shader *Shader) Get(param gl33.Enum) int {
 	var ret gl33.Int
 	gl33.GetShaderiv(shader.Id, param, &ret)
 	return int(ret)
 }
 
-func (shader *Shader) Get(param gl33.Enum) int {
-	ret := make(chan int, 1)
-	GL <- func() {
-		ret <- shader.get(param)
-	}
-	return <-ret
-}
-
-func (shader *Shader) getInfoLog() string {
-	length := shader.get(gl33.INFO_LOG_LENGTH)
+func (shader *Shader) GetInfoLog() string {
+	length := shader.Get(gl33.INFO_LOG_LENGTH)
 	log := gl33.GLStringAlloc(gl33.Sizei(length + 1))
 	defer gl33.GLStringFree(log)
 	gl33.GetShaderInfoLog(shader.Id, gl33.Sizei(length), nil, log)
 	return gl33.GoString(log)
 }
 
-func (shader *Shader) GetInfoLog() string {
-	ret := make(chan string, 1)
-	GL <- func() {
-		ret <- shader.getInfoLog()
-	}
-	return <-ret
-}
-
 func (shader *Shader) Source(source string) {
-	GL <- func() {
-		str := gl33.GLString(source)
-		defer gl33.GLStringFree(str)
-		length := gl33.Int(len(source))
-		gl33.ShaderSource(shader.Id, 1, &str, &length)
-	}
+	str := gl33.GLString(source)
+	defer gl33.GLStringFree(str)
+	length := gl33.Int(len(source))
+	gl33.ShaderSource(shader.Id, 1, &str, &length)
 }
 
 func (shader *Shader) Compile() {
-	GL <- func() {
-		gl33.CompileShader(shader.Id)
-		if shader.get(gl33.COMPILE_STATUS) == gl33.FALSE {
-			panic(shader.getInfoLog())
-		}
+	gl33.CompileShader(shader.Id)
+	if shader.Get(gl33.COMPILE_STATUS) == gl33.FALSE {
+		panic(shader.GetInfoLog())
 	}
 }
