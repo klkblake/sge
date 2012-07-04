@@ -10,11 +10,10 @@ import (
 )
 
 var activeTexture int
-var boundTexture map[gl33.Enum]*Texture
-
-func init() {
-	boundTexture = make(map[gl33.Enum]*Texture)
-}
+var boundTexture2D *Texture
+var boundTexture2DArray *Texture
+var boundTextureCubeMap *Texture
+var boundTextureBuffer *Texture
 
 type Texture struct {
 	Id     gl33.Uint
@@ -151,15 +150,29 @@ func uploadSurface(target gl33.Enum, surface *sdl.Surface) {
 }
 
 func UnbindTexture2D() {
-	if boundTexture[gl33.TEXTURE_2D] != nil {
-		boundTexture[gl33.TEXTURE_2D].Unbind()
+	if boundTexture2D != nil {
+		boundTexture2D.Unbind()
 	}
 }
 
 func UnbindTextureCubeMap() {
-	if boundTexture[gl33.TEXTURE_CUBE_MAP] != nil {
-		boundTexture[gl33.TEXTURE_CUBE_MAP].Unbind()
+	if boundTextureCubeMap != nil {
+		boundTextureCubeMap.Unbind()
 	}
+}
+
+func (tex *Texture) bound() **Texture {
+	switch tex.Type {
+	case gl33.TEXTURE_2D:
+		return &boundTexture2D
+	case gl33.TEXTURE_2D_ARRAY:
+		return &boundTexture2DArray
+	case gl33.TEXTURE_CUBE_MAP:
+		return &boundTextureCubeMap
+	case gl33.TEXTURE_BUFFER:
+		return &boundTextureBuffer
+	}
+	panic("Unsupported texture type")
 }
 
 func (tex *Texture) Bind(textureUnit int) {
@@ -169,20 +182,22 @@ func (tex *Texture) Bind(textureUnit int) {
 		}
 		activeTexture = textureUnit
 	}
-	if boundTexture[tex.Type] != tex {
+	bound := tex.bound()
+	if *bound != tex {
 		GL <- func() {
 			gl33.BindTexture(tex.Type, tex.Id)
 		}
-		boundTexture[tex.Type] = tex
+		*bound = tex
 	}
 }
 
 func (tex *Texture) Unbind() {
-	if boundTexture[tex.Type] == tex {
+	bound := tex.bound()
+	if *bound == tex {
 		GL <- func() {
 			gl33.BindTexture(tex.Type, 0)
 		}
-		boundTexture[tex.Type] = nil
+		*bound = nil
 	}
 }
 

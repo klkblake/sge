@@ -8,11 +8,9 @@ import (
 	"github.com/chsc/gogl/gl33"
 )
 
-var boundBuffer map[gl33.Enum]*Buffer
-
-func init() {
-	boundBuffer = make(map[gl33.Enum]*Buffer)
-}
+var boundBufferTexture *Buffer
+var boundBufferArray *Buffer
+var boundBufferElementArray *Buffer
 
 type Buffer struct {
 	Id     gl33.Uint
@@ -39,26 +37,40 @@ func NewBuffer(target gl33.Enum, type_ gl33.Enum, data interface{}) *Buffer {
 }
 
 func UnbindArrayBuffer() {
-	if boundBuffer[gl33.ARRAY_BUFFER] != nil {
-		boundBuffer[gl33.ARRAY_BUFFER].Unbind()
+	if boundBufferArray != nil {
+		boundBufferArray.Unbind()
 	}
 }
 
+func (buffer *Buffer) bound() **Buffer {
+	switch buffer.Target {
+	case gl33.TEXTURE_BUFFER:
+		return &boundBufferTexture
+	case gl33.ARRAY_BUFFER:
+		return &boundBufferArray
+	case gl33.ELEMENT_ARRAY_BUFFER:
+		return &boundBufferElementArray
+	}
+	panic("Unsupported buffer target")
+}
+
 func (buffer *Buffer) Bind() {
-	if boundBuffer[buffer.Target] != buffer {
+	bound := buffer.bound()
+	if *bound != buffer {
 		GL <- func() {
 			gl33.BindBuffer(buffer.Target, buffer.Id)
 		}
-		boundBuffer[buffer.Target] = buffer
+		*bound = buffer
 	}
 }
 
 func (buffer *Buffer) Unbind() {
-	if boundBuffer[buffer.Target] == buffer {
+	bound := buffer.bound()
+	if *bound == buffer {
 		GL <- func() {
 			gl33.BindBuffer(buffer.Target, 0)
 		}
-		boundBuffer[buffer.Target] = nil
+		*bound = nil
 	}
 }
 
