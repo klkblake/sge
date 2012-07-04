@@ -40,5 +40,5 @@ func (leaf *BasicLeaf) XformNode() *XformNode {
 	return leaf.xformNode
 }
 
-func (leaf *BasicLeaf) Update(delta float64)                              {}
+func (leaf *BasicLeaf) Update(delta float64)                             {}
 func (leaf *BasicLeaf) Render(view *View, mvpMatrix s3dm.Mat4, pass int) {}

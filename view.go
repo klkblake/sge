@@ -10,8 +10,8 @@ import (
 
 type View struct {
 	*s3dm.Frustum
-	Width         int
-	Height        int
+	Width  int
+	Height int
 }
 
 func NewView(width int, height int, near float64, far float64) *View {

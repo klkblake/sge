@@ -64,7 +64,7 @@ func (uniform *Uniform) SetMatrix(data []float32, size int) {
 		panic("Invalid size")
 	}
 	loc := uniform.Location
-	length := gl33.Sizei(len(data)/(size*size))
+	length := gl33.Sizei(len(data) / (size * size))
 	ptr := (*gl33.Float)(&data[0])
 	switch size {
 	case 2:

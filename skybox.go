@@ -10,12 +10,12 @@ import (
 
 type Skybox struct {
 	*BasicLeaf
-	CubeMap         *Texture
-	Shader          *Program
-	cachedMatrix    s3dm.Mat4
-	mvpMatrix       *Uniform
-	textureSampler  *Uniform
-	mesh            *Mesh
+	CubeMap        *Texture
+	Shader         *Program
+	cachedMatrix   s3dm.Mat4
+	mvpMatrix      *Uniform
+	textureSampler *Uniform
+	mesh           *Mesh
 }
 
 func NewSkybox(cubeMap *Texture, shader *Program, far float64) *Skybox {

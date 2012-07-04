@@ -7,8 +7,8 @@ import (
 )
 
 type GLRenderer struct {
-	View   *View
-	Screen *sdl.Surface
+	View               *View
+	Screen             *sdl.Surface
 	PerspectiveMatrix  s3dm.Mat4
 	OrthographicMatrix s3dm.Mat4
 	ViewMatrix         s3dm.Mat4
