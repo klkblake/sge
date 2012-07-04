@@ -13,6 +13,8 @@ type Skybox struct {
 	CubeMap         *Texture
 	Shader          *Program
 	cachedMatrix    s3dm.Mat4
+	mvpMatrix       *Uniform
+	textureSampler  *Uniform
 	mesh            *Mesh
 }
 
@@ -24,6 +26,8 @@ func NewSkybox(cubeMap *Texture, shader *Program, far float64) *Skybox {
 	skybox.cachedMatrix = skybox.Matrix()
 	skybox.CubeMap = cubeMap
 	skybox.Shader = shader
+	skybox.mvpMatrix = shader.Uniform("mvpMatrix")
+	skybox.textureSampler = shader.Uniform("textureSampler")
 	type skyboxVertex [2][3]float32
 	verticies := []skyboxVertex{
 		// Positive X
@@ -80,9 +84,9 @@ func (skybox *Skybox) Render(view *View, mvpMatrix s3dm.Mat4, pass int) {
 		skybox.cachedMatrix = skybox.Matrix()
 	}
 	matrix := mvpMatrix.Mul(skybox.cachedMatrix).RawMatrix32()
-	skybox.Shader.SetUniformMatrix("mvpMatrix", matrix[:], 4)
+	skybox.mvpMatrix.SetMatrix(matrix[:], 4)
 	if skybox.CubeMap != nil {
-		skybox.Shader.SetUniform("textureUnit", 0)
+		skybox.textureSampler.Set(0)
 	}
 	skybox.mesh.Render()
 }

@@ -19,19 +19,19 @@ const defaultVertexSource = "#version 330\n" +
 	"}\n"
 
 const defaultFragmentSource = "#version 330\n" +
-	"uniform sampler2D textureUnit;\n" +
+	"uniform sampler2D textureSampler;\n" +
 	"in vec3 fragTexcoord;\n" +
 	"out vec4 color;\n" +
 	"void main(void) {\n" +
-	"	color = texture(textureUnit, fragTexcoord.xy);\n" +
+	"	color = texture(textureSampler, fragTexcoord.xy);\n" +
 	"}\n"
 
 const defaultCubeFragmentSource = "#version 330\n" +
-	"uniform samplerCube textureUnit;\n" +
+	"uniform samplerCube textureSampler;\n" +
 	"in vec3 fragTexcoord;\n" +
 	"out vec4 color;\n" +
 	"void main(void) {\n" +
-	"	color = texture(textureUnit, fragTexcoord);\n" +
+	"	color = texture(textureSampler, fragTexcoord);\n" +
 	"}\n"
 
 type Shader struct {
