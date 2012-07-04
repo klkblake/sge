@@ -51,10 +51,11 @@ func (node *XformNode) Update() {
 		// XXX this should be a function in s3dm.
 		pxf := node.Parent.WorldXform
 		xf := node.Xform
-		wxf := node.WorldXform
+		var wxf s3dm.Xform
 		wxf.Position = pxf.Position.Add(xf.Position.Rotate(pxf.Rotation).Mul(pxf.Scale))
 		wxf.Rotation = pxf.Rotation.Mul(xf.Rotation)
 		wxf.Scale = pxf.Scale.Mul(xf.Scale.Rotate(pxf.Rotation))
+		node.WorldXform = wxf
 	} else {
 		node.WorldXform = node.Xform
 	}
