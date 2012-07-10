@@ -23,9 +23,8 @@ func NewSkybox(cubeMap *Texture, shader *Program, far float64) *Skybox {
 	skybox.BasicLeaf = NewBasicLeaf()
 	skybox.Link(skybox)
 	scale := far / math.Sqrt(3)
-	*skybox.Xform() = s3dm.XformIdentity
 	skybox.Xform().Scale = s3dm.V3{scale, scale, scale}
-	skybox.cachedMatrix = skybox.Xform().Matrix()
+	skybox.cachedMatrix = skybox.Xform().Matrix(s3dm.Position{})
 	skybox.CubeMap = cubeMap
 	skybox.Shader = shader
 	skybox.mvpMatrix = shader.Uniform("mvpMatrix")
@@ -80,11 +79,6 @@ func (skybox *Skybox) Render(view *View, mvpMatrix s3dm.Mat4, pass int) {
 		skybox.CubeMap.Bind(0)
 	}
 	skybox.Shader.Use()
-	pos := view.Position
-	if !pos.Equals(skybox.Xform().Position) {
-		skybox.Xform().Position = pos
-		skybox.cachedMatrix = skybox.Xform().Matrix()
-	}
 	matrix := mvpMatrix.Mul(skybox.cachedMatrix).RawMatrix32()
 	skybox.mvpMatrix.SetMatrix(matrix[:], 4)
 	if skybox.CubeMap != nil {

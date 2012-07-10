@@ -53,13 +53,12 @@ func (r *GLRenderer) SetBackgroundColor(red, green, blue float32) {
 
 func (r *GLRenderer) UpdatePerspective() {
 	r.PerspectiveMatrix = s3dm.PerspectiveMatrix(r.View.Fovy, r.View.Aspect, r.View.Near, r.View.Far)
-	r.Update()
 }
 
 // TODO this should walk a seperate visibility structure.
 func (r *GLRenderer) Render(world *World) {
 	r.View.Update()
-	m := r.View.Matrix()
+	m := r.View.Matrix(r.View.Position)
 	// Take the inverse of the camera matrix
 	r.ViewMatrix = s3dm.Mat4{
 		m[0], m[4], m[8], 0,
@@ -78,11 +77,10 @@ func (r *GLRenderer) Render(world *World) {
 			if pass&leaf.Passes() == 0 {
 				return
 			}
-			modelMatrix := leaf.XformNode().WorldMatrix
+			modelMatrix := leaf.XformNode().WorldXform.Matrix(r.View.Position)
 			mvpMatrix := vpMatrix.Mul(modelMatrix)
 			if frustumCull {
-				aabb := leaf.AABB().MoveGlobal(leaf.XformNode().WorldXform.Position)
-				if aabb.IntersectsFrustum(r.View.Frustum) < 0 {
+				if leaf.AABB().IntersectsFrustum(r.View.Frustum) < 0 {
 					return
 				}
 			}

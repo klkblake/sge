@@ -5,17 +5,15 @@ import "github.com/klkblake/s3dm"
 type XformNode struct {
 	Parent      *XformNode
 	Children    []*XformNode
-	Xform       s3dm.Xform
-	WorldXform  s3dm.Xform
-	WorldMatrix s3dm.Mat4
+	Xform       s3dm.XformScale
+	WorldXform  s3dm.XformScale
 	Leaf        Leaf
 }
 
 func NewXformNode() *XformNode {
 	node := new(XformNode)
-	node.Xform = s3dm.XformIdentity
-	node.WorldXform = s3dm.XformIdentity
-	node.WorldMatrix = node.WorldXform.Matrix()
+	node.Xform = s3dm.XformScaleIdentity
+	node.WorldXform = s3dm.XformScaleIdentity
 	return node
 }
 
@@ -51,15 +49,15 @@ func (node *XformNode) Update() {
 		// XXX this should be a function in s3dm.
 		pxf := node.Parent.WorldXform
 		xf := node.Xform
-		var wxf s3dm.Xform
-		wxf.Position = pxf.Position.Add(xf.Position.Rotate(pxf.Rotation).Mul(pxf.Scale))
+		var wxf s3dm.XformScale
+		// XXX Dodgy hax, will be going away soon.
+		wxf.Position = pxf.Position.Add(xf.Position.Sub(s3dm.Position{}).Rotate(pxf.Rotation).Mul(pxf.Scale))
 		wxf.Rotation = pxf.Rotation.Mul(xf.Rotation)
 		wxf.Scale = pxf.Scale.Mul(xf.Scale.Rotate(pxf.Rotation))
 		node.WorldXform = wxf
 	} else {
 		node.WorldXform = node.Xform
 	}
-	node.WorldMatrix = node.WorldXform.Matrix()
 	for _, child := range node.Children {
 		child.Update()
 	}
