@@ -72,14 +72,19 @@ func (r *GLRenderer) Render(world *World) {
 		gl33.Clear(gl33.COLOR_BUFFER_BIT | gl33.DEPTH_BUFFER_BIT)
 		vpMatrix := r.PerspectiveMatrix.Mul(r.ViewMatrix)
 		pass := PassOpaque
-		frustumCull := true
+		hud := false
 		render := func(leaf Leaf) {
 			if pass&leaf.Passes() == 0 {
 				return
 			}
-			modelMatrix := leaf.XformNode().WorldXform.Matrix(r.View.Position)
+			var modelMatrix s3dm.Mat4
+			if hud {
+				modelMatrix = leaf.XformNode().WorldXform.Matrix(s3dm.Position{})
+			} else {
+				modelMatrix = leaf.XformNode().WorldXform.Matrix(r.View.Position)
+			}
 			mvpMatrix := vpMatrix.Mul(modelMatrix)
-			if frustumCull {
+			if !hud {
 				if leaf.AABB().IntersectsFrustum(r.View.Frustum) < 0 {
 					return
 				}
@@ -93,7 +98,7 @@ func (r *GLRenderer) Render(world *World) {
 			world.Skybox.Render(r.View, vpMatrix, PassOpaque)
 		}
 		vpMatrix = r.OrthographicMatrix
-		frustumCull = false
+		hud = true
 		pass = PassOpaque
 		world.Gui.Walk(render)
 		pass = PassTranslucent
