@@ -1,6 +1,22 @@
 sge - Simple Game Engine
 ========================
 
+!!WARNING!!
+-----------
+I no longer use Go for game development, and as this engine has no other
+users it is not being actively developed. Moreover, I have learnt a lot
+about writing good quality, high performance code since this engine was
+designed, and although the design it uses is very common among open
+source game engines, I no longer think it is a good idea in any way. See
+Tom Forsythe's rant about scene graphs and Mike Acton's talks on Data
+Oriented Design for a good summary of the biggest issues.
+
+This project is here for historical purposes only. Do not actually use
+it.
+
+Description
+-----------
+
 sge is a simple 3D game engine for Go. It uses OpenGL 3.3 and SDL 1.2.
 For an example of how to use this library, check the example directory.
 It should be fairly straightforward.
