@@ -16,7 +16,6 @@ it.
 
 Description
 -----------
-
 sge is a simple 3D game engine for Go. It uses OpenGL 3.3 and SDL 1.2.
 For an example of how to use this library, check the example directory.
 It should be fairly straightforward.
